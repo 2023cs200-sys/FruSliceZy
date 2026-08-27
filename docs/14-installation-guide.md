@@ -16,7 +16,7 @@ Install:
 
 ```bash
 git clone <repository-url>
-cd SliceRush
+cd FruSliceZy
 ```
 
 ## 3. Mobile Controller Setup

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-SliceRush is rendered as a 3D Fruit Ninja-style scene. Instead of flat 2D sprites, the game displays 3D fruit models that are launched into the air, cut into pieces by a virtual sword, and fall back down.
+FruSliceZy is rendered as a 3D Fruit Ninja-style scene. Instead of flat 2D sprites, the game displays 3D fruit models that are launched into the air, cut into pieces by a virtual sword, and fall back down.
 
 The game uses the Ursina engine, a Python game engine built on top of Panda3D.
 

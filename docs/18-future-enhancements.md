@@ -81,4 +81,4 @@ Expand support for additional mobile devices and desktop platforms.
 
 ## 12. Future Vision
 
-The long-term goal could be to turn SliceRush into a more immersive motion-controlled gaming platform where smartphones can act as flexible physical controllers for different games.
+The long-term goal could be to turn FruSliceZy into a more immersive motion-controlled gaming platform where smartphones can act as flexible physical controllers for different games.

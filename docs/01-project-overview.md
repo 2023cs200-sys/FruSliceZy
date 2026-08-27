@@ -1,8 +1,8 @@
-# SliceRush — Project Overview
+# FruSliceZy — Project Overview
 
 ## 1. Introduction
 
-SliceRush is a motion-controlled 3D fruit-cutting game in which a smartphone is used as a wireless game controller. The player moves the smartphone like a sword, while the phone's accelerometer and gyroscope detect movement and rotation.
+FruSliceZy is a motion-controlled 3D fruit-cutting game in which a smartphone is used as a wireless game controller. The player moves the smartphone like a sword, while the phone's accelerometer and gyroscope detect movement and rotation.
 
 The detected motion is transmitted over a local Wi-Fi network to a laptop running the game. The Python/Ursina game converts the received motion into a virtual 3D sword slash that cuts 3D fruit models on the screen.
 

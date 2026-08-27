@@ -1,2 +1,2 @@
-# SliceRush
-SliceRush
+# FruSliceZy
+FruSliceZy

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-SliceRush does not require a traditional REST API. Communication between the mobile controller and laptop uses a WebSocket interface.
+FruSliceZy does not require a traditional REST API. Communication between the mobile controller and laptop uses a WebSocket interface.
 
 ## 2. WebSocket Endpoint
 

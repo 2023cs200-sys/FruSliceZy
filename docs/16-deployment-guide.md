@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-SliceRush is primarily designed as a local-network project. The mobile controller and laptop game can be deployed separately.
+FruSliceZy is primarily designed as a local-network project. The mobile controller and laptop game can be deployed separately.
 
 ## 2. Mobile Application
 

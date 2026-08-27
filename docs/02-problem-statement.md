@@ -14,7 +14,7 @@ The challenge is to accurately detect meaningful sword-like movements, transmit 
 
 ## 3. Proposed Solution
 
-SliceRush addresses this problem by using a React Native mobile application as a wireless motion controller and a Python/Ursina application as a 3D game engine.
+FruSliceZy addresses this problem by using a React Native mobile application as a wireless motion controller and a Python/Ursina application as a 3D game engine.
 
 The smartphone collects motion data and sends it to the laptop through a local Wi-Fi WebSocket connection. The laptop processes the data, renders the 3D scene, and generates virtual sword slashes.
 

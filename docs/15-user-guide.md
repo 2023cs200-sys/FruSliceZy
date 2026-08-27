@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This guide explains how to play SliceRush using a smartphone as the controller.
+This guide explains how to play FruSliceZy using a smartphone as the controller.
 
 ## 2. Before Playing
 
