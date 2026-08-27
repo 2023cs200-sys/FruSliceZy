@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run FruSliceZy Game",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/python-game/main.py",
+      "cwd": "${workspaceFolder}/python-game",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Run All Tests (headless, no window)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-v"],
+      "cwd": "${workspaceFolder}/python-game",
+      "console": "integratedTerminal"
+    }
+  ]
+}

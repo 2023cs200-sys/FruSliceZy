@@ -1,0 +1,7 @@
+python-game/venv/
+python-game/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.vscode/*.local.json
+*.egg-info/
