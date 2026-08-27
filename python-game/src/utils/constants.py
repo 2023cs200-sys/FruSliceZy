@@ -3,6 +3,8 @@ FRUIT_TYPES = {
         "points": 10,
         "color": (220, 40, 40),
         "scale": 0.45,
+        "builtin": "apple",
+        "model_scale": 0.55,
     },
     "orange": {
         "points": 10,
