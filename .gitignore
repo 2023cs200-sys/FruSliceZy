@@ -5,3 +5,15 @@ __pycache__/
 .pytest_cache/
 .vscode/*.local.json
 *.egg-info/
+
+# Mobile (Expo)
+node_modules/
+.expo/
+dist/
+expo-env.d.ts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
