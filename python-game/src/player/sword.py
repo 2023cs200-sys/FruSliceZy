@@ -4,6 +4,7 @@ from ursina import Entity, Vec3, camera, color, mouse, time
 
 from config import config
 from src.utils.helpers import clamp
+from src.player.motion_mapper import MotionMapper
 
 
 class Sword(Entity):
@@ -30,6 +31,7 @@ class Sword(Entity):
             color=color.rgb32(205, 175, 70),
             position=(0, -0.28),
         )
+        self.motion_mapper = MotionMapper()
         self.previous_tip_position = self.tip_position
         self.velocity = Vec3(0, 0, 0)
 
@@ -46,24 +48,13 @@ class Sword(Entity):
         return self.speed >= config.sword.slash_speed_threshold
 
     def update(self):
-        target = self.mouse_world_position()
-        if target is not None:
-            play_area = config.play_area
-            x = clamp(target.x, play_area.min_x, play_area.max_x)
-            y = clamp(target.y, play_area.min_y, play_area.max_y)
-            self.position = Vec3(x, y, play_area.plane_z)
-        self.velocity = (
-            (self.tip_position - self.previous_tip_position) / time.dt
-            if time.dt > 0
-            else Vec3(0, 0, 0)
-        )
-        self.previous_tip_position = self.tip_position
+        self.motion_mapper.update(self)
+        self.velocity = self.motion_mapper.get_velocity()
+        self.previous_tip_position = self.motion_mapper.get_tip_position(self)
         self.rotation_z = clamp(-self.velocity.x * 1.2, -30, 30)
 
     @staticmethod
     def mouse_world_position():
-        if mouse.position is None:
-            return None
         distance = abs(config.play_area.plane_z - camera.z)
         world_height = tan(radians(camera.fov / 2)) * distance * 2
         return Vec3(
