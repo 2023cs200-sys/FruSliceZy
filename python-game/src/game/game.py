@@ -6,13 +6,13 @@ from src.effects.particles import juice_burst, score_popup
 from src.game.game_state import GameState
 from src.objects.object_manager import ObjectManager
 from src.objects.spawner import Spawner
-from src.player.slash import SlashTrail
-from src.player.sword import Sword
+from src.player.player import Player
 from src.scoring.combo_manager import ComboManager
 from src.scoring.score_manager import ScoreManager
 from src.ui.game_over import GameOverScreen
 from src.ui.hud import HUD
 from src.ui.main_menu import MainMenu
+from src.ui.pause_menu import PauseMenu
 from src.utils.constants import FRUIT_TYPES
 
 
@@ -22,8 +22,7 @@ class Game:
         camera.position = config.camera.position
         camera.fov = config.camera.fov
         self.state = GameState.MENU
-        self.sword = Sword()
-        self.trail = SlashTrail()
+        self.player = Player()
         self.object_manager = ObjectManager()
         self.spawner = Spawner(self.object_manager)
         self.score_manager = ScoreManager()
@@ -31,11 +30,24 @@ class Game:
         self.hud = HUD()
         self.main_menu = MainMenu()
         self.game_over_screen = GameOverScreen()
+        self.pause_menu = PauseMenu()
         self.time_left = config.round.duration
+
+    @property
+    def trail(self):
+        return self.player.trail
+
+    @property
+    def sword(self):
+        return self.player.sword
+
+    @sword.setter
+    def sword(self, value):
+        self.player.sword = value
 
     def start_game(self):
         self.object_manager.clear()
-        self.trail.clear()
+        self.player.trail.clear()
         self.score_manager.reset()
         self.combo_manager.reset()
         self.spawner.reset()
@@ -46,12 +58,23 @@ class Game:
         self.hud.set_visible(True)
         self.main_menu.set_visible(False)
         self.game_over_screen.set_visible(False)
+        self.pause_menu.set_visible(False)
         self.state = GameState.PLAYING
+
+    def pause_game(self):
+        self.state = GameState.PAUSE
+        self.hud.set_visible(False)
+        self.pause_menu.set_visible(True)
+
+    def resume_game(self):
+        self.state = GameState.PLAYING
+        self.hud.set_visible(True)
+        self.pause_menu.set_visible(False)
 
     def end_game(self):
         self.state = GameState.GAME_OVER
         self.object_manager.clear()
-        self.trail.clear()
+        self.player.trail.clear()
         self.hud.set_visible(False)
         self.game_over_screen.show_results(
             self.score_manager.score,
@@ -60,13 +83,17 @@ class Game:
         )
 
     def update(self):
-        if self.state != GameState.PLAYING:
+        if self.state not in (GameState.PLAYING, GameState.PAUSE):
             return
+        
+        if self.state == GameState.PAUSE:
+            return
+            
         now = time.time()
-        self.trail.update(self.sword)
+        self.player.update()
         self.spawner.update(time.dt)
         self.object_manager.update()
-        for fruit in check_sword_hits(self.sword, self.object_manager.fruits):
+        for fruit in check_sword_hits(self.player.sword, self.object_manager.fruits):
             self._cut_fruit(fruit)
         self.combo_manager.update(now)
         self.hud.set_combo(self.combo_manager.combo)
@@ -88,7 +115,14 @@ class Game:
         if key == "escape":
             application.quit()
             return
+            
         if self.state == GameState.MENU and key in ("space", "left mouse down"):
             self.start_game()
+        elif self.state == GameState.PLAYING and key == "p":
+            self.pause_game()
+        elif self.state == GameState.PAUSE and key == "p":
+            self.resume_game()
         elif self.state == GameState.GAME_OVER and key == "r":
             self.start_game()
+        elif self.state == GameState.PAUSE:
+            self.pause_menu.handle_input(key)
