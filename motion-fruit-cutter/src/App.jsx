@@ -1,39 +1,31 @@
 /**
  * Motion Fruit Cutter — Fruit Ninja-Inspired Arcade Game UI
- * Visual reference & playable interface for Python + Ursina & React Native controller
+ * Visual reference & playable interface for Python + WebSocket server
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import {
-  ScreenState,
-  GameStats,
-  GameSettings,
-  ControllerConfig,
-  FruitType,
-  HighScoreEntry,
-} from './types';
-import { INITIAL_HIGH_SCORES } from './data/fruits';
-import { sound } from './utils/sound';
+import { INITIAL_HIGH_SCORES } from './data/fruits.js';
+import { sound } from './utils/sound.js';
 
-import { ArcadeGameCanvas } from './components/ArcadeGameCanvas';
-import { HUD } from './components/HUD';
-import { MainMenu } from './components/screens/MainMenu';
-import { ConnectScreen } from './components/screens/ConnectScreen';
-import { CalibrationScreen } from './components/screens/CalibrationScreen';
-import { HowToPlayScreen } from './components/screens/HowToPlayScreen';
-import { PauseOverlay } from './components/screens/PauseOverlay';
-import { GameOverScreen } from './components/screens/GameOverScreen';
-import { HighScoresScreen } from './components/screens/HighScoresScreen';
-import { SettingsScreen } from './components/screens/SettingsScreen';
-import { ScreenSwitcherBar } from './components/ScreenSwitcherBar';
+import { ArcadeGameCanvas } from './components/ArcadeGameCanvas.jsx';
+import { HUD } from './components/HUD.jsx';
+import { MainMenu } from './components/screens/MainMenu.jsx';
+import { ConnectScreen } from './components/screens/ConnectScreen.jsx';
+import { CalibrationScreen } from './components/screens/CalibrationScreen.jsx';
+import { HowToPlayScreen } from './components/screens/HowToPlayScreen.jsx';
+import { PauseOverlay } from './components/screens/PauseOverlay.jsx';
+import { GameOverScreen } from './components/screens/GameOverScreen.jsx';
+import { HighScoresScreen } from './components/screens/HighScoresScreen.jsx';
+import { SettingsScreen } from './components/screens/SettingsScreen.jsx';
+import { ScreenSwitcherBar } from './components/ScreenSwitcherBar.jsx';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenState>('MAIN_MENU');
-  const [highScores, setHighScores] = useState<HighScoreEntry[]>(INITIAL_HIGH_SCORES);
+  const [currentScreen, setCurrentScreen] = useState('MAIN_MENU');
+  const [highScores, setHighScores] = useState(INITIAL_HIGH_SCORES);
 
   // Game Stats
-  const [stats, setStats] = useState<GameStats>({
+  const [stats, setStats] = useState({
     score: 0,
     bestScore: 1870,
     fruitsCut: 0,
@@ -47,7 +39,7 @@ export default function App() {
   });
 
   // Settings
-  const [settings, setSettings] = useState<GameSettings>({
+  const [settings, setSettings] = useState({
     soundEffects: true,
     music: false,
     controllerSensitivity: 7,
@@ -58,7 +50,7 @@ export default function App() {
   });
 
   // Smartphone Motion Controller Config
-  const [controller, setController] = useState<ControllerConfig>({
+  const [controller, setController] = useState({
     ipAddress: '192.168.1.10',
     port: '8765',
     status: 'DISCONNECTED',
@@ -66,8 +58,8 @@ export default function App() {
     lastMotionTime: 0,
   });
 
-  const [bombAlert, setBombAlert] = useState<boolean>(false);
-  const timerRef = useRef<number | null>(null);
+  const [bombAlert, setBombAlert] = useState(false);
+  const timerRef = useRef(null);
 
   // Start / Reset Game
   const resetGame = useCallback(() => {
@@ -90,7 +82,7 @@ export default function App() {
   };
 
   // Fruit Sliced Handler
-  const handleFruitSliced = useCallback((points: number, _type: FruitType, comboCount: number) => {
+  const handleFruitSliced = useCallback((points, _type, comboCount) => {
     setStats((prev) => {
       const newScore = prev.score + points;
       const newMaxCombo = Math.max(prev.maxCombo, comboCount);
@@ -122,7 +114,7 @@ export default function App() {
   }, []);
 
   // Combo Increment Handler
-  const handleComboIncrement = useCallback((combo: number) => {
+  const handleComboIncrement = useCallback((combo) => {
     setStats((prev) => ({
       ...prev,
       currentCombo: combo,
@@ -136,8 +128,7 @@ export default function App() {
       timerRef.current = window.setInterval(() => {
         setStats((prev) => {
           if (prev.timeRemaining <= 1) {
-            clearInterval(timerRef.current!);
-            // Trigger game over
+            clearInterval(timerRef.current);
             setCurrentScreen('GAME_OVER');
             return { ...prev, timeRemaining: 0 };
           }
@@ -162,7 +153,7 @@ export default function App() {
       setHighScores((prev) => {
         const exists = prev.some((e) => e.score === stats.score && e.playerName === 'YOU');
         if (exists) return prev;
-        const newEntry: HighScoreEntry = {
+        const newEntry = {
           rank: 0,
           playerName: 'YOU',
           score: stats.score,
@@ -195,7 +186,7 @@ export default function App() {
     handleBombHit();
   };
 
-  const simulateGameOver = (isHighScore: boolean) => {
+  const simulateGameOver = (isHighScore) => {
     setStats((prev) => ({
       ...prev,
       score: isHighScore ? 2850 : 1250,
@@ -235,8 +226,7 @@ export default function App() {
         onSimulateGameOver={simulateGameOver}
       />
 
-      {/* BACKGROUND 3D GAMEPLAY ARENA
-          Active during GAMEPLAY and visible behind Pause & Game Over overlays */}
+      {/* BACKGROUND 3D GAMEPLAY ARENA */}
       <div
         id="arcade-game-arena-layer"
         className={`absolute inset-0 transition-opacity duration-300 ${
@@ -275,7 +265,6 @@ export default function App() {
 
       {/* SCREEN OVERLAYS & VIEWS */}
       <AnimatePresence mode="wait">
-        {/* Screen 2: MAIN MENU */}
         {currentScreen === 'MAIN_MENU' && (
           <motion.div
             key="main-menu"
@@ -289,7 +278,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 3: CONNECT CONTROLLER */}
         {currentScreen === 'CONNECT' && (
           <motion.div
             key="connect-screen"
@@ -307,7 +295,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 4: CALIBRATE CONTROLLER */}
         {currentScreen === 'CALIBRATE' && (
           <motion.div
             key="calibrate-screen"
@@ -321,7 +308,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 5: HOW TO PLAY */}
         {currentScreen === 'HOW_TO_PLAY' && (
           <motion.div
             key="how-to-play-screen"
@@ -335,7 +321,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 7: GAME OVER */}
         {currentScreen === 'GAME_OVER' && (
           <motion.div
             key="game-over-screen"
@@ -353,7 +338,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 8: HIGH SCORES */}
         {currentScreen === 'HIGH_SCORES' && (
           <motion.div
             key="high-scores-screen"
@@ -367,7 +351,6 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Screen 9: SETTINGS */}
         {currentScreen === 'SETTINGS' && (
           <motion.div
             key="settings-screen"
@@ -386,7 +369,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Screen 6: PAUSE OVERLAY (When paused in GAMEPLAY) */}
+      {/* PAUSE OVERLAY */}
       <AnimatePresence>
         {currentScreen === 'GAMEPLAY' && stats.isPaused && (
           <PauseOverlay

@@ -1,22 +1,16 @@
 import React from 'react';
 import { Play, BookOpen, Trophy, Settings, Smartphone, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
-import { ScreenState } from '../../types';
-import { sound } from '../../utils/sound';
+import { sound } from '../../utils/sound.js';
 
-interface MainMenuProps {
-  onNavigate: (screen: ScreenState) => void;
-  bestScore: number;
-}
-
-export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => {
+export const MainMenu = ({ onNavigate, bestScore }) => {
   const handlePlayClick = () => {
     sound.playButton();
     sound.playSlice(2);
     onNavigate('GAMEPLAY');
   };
 
-  const handleNav = (screen: ScreenState) => {
+  const handleNav = (screen) => {
     sound.playButton();
     onNavigate(screen);
   };
@@ -28,12 +22,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
     >
       {/* Dynamic 3D Floating Fruits in Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Animated ambient fruit orbs and glow */}
         <div className="absolute top-1/4 left-1/5 w-72 h-72 rounded-full bg-orange-600/20 blur-[90px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-red-600/20 blur-[100px] animate-pulse delay-1000" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-amber-500/15 blur-[120px]" />
 
-        {/* Floating fruit silhouettes with motion animations */}
         <motion.div
           animate={{ y: [-15, 15, -15], rotate: [0, 12, 0] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -63,11 +55,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
           🍌
         </motion.div>
 
-        {/* Diagonal Sword Slash Light Beam across center */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[3px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent -rotate-12 opacity-30 shadow-[0_0_20px_rgba(56,189,248,0.8)]" />
       </div>
 
-      {/* TOP HEADER: High Score Pill & Controller Quick status */}
+      {/* TOP HEADER */}
       <div className="w-full flex items-center justify-between max-w-5xl z-10">
         <div className="flex items-center gap-2 bg-[#12141c]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
           <Trophy className="w-5 h-5 text-[#ffcc00]" />
@@ -87,9 +78,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
         </button>
       </div>
 
-      {/* CENTER: LOGO & BRANDING */}
+      {/* CENTER LOGO */}
       <div className="flex flex-col items-center justify-center my-auto z-10 text-center">
-        {/* Animated blade badge above title */}
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -101,7 +91,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
           <Zap className="w-3.5 h-3.5 text-amber-400 fill-current" />
         </motion.div>
 
-        {/* Title: MOTION FRUIT CUTTER */}
         <motion.div
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -114,12 +103,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
           <h2 className="font-arcade text-4xl sm:text-6xl md:text-7xl tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-amber-300 to-amber-600 -mt-2 sm:-mt-4 arcade-gold-shadow">
             CUTTER
           </h2>
-
-          {/* Sliced Katana slash decorative line */}
           <div className="absolute -inset-x-6 top-1/2 h-[3px] bg-gradient-to-r from-transparent via-white to-transparent shadow-[0_0_12px_#fff] -rotate-3 pointer-events-none opacity-80" />
         </motion.div>
 
-        {/* Subtitle: SLICE • MOVE • MASTER */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -129,7 +115,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
           SLICE • MOVE • MASTER
         </motion.p>
 
-        {/* LARGE PRIMARY BUTTON: PLAY */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -151,7 +136,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onNavigate, bestScore }) => 
         </motion.div>
       </div>
 
-      {/* BOTTOM ROW SECONDARY BUTTONS: HOW TO PLAY, HIGH SCORES, SETTINGS */}
+      {/* BOTTOM BUTTONS */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

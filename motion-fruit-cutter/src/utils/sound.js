@@ -4,14 +4,16 @@
  */
 
 class SoundSystem {
-  private ctx: AudioContext | null = null;
-  public sfxEnabled: boolean = true;
-  public musicEnabled: boolean = false;
-  private musicInterval: number | null = null;
+  constructor() {
+    this.ctx = null;
+    this.sfxEnabled = true;
+    this.musicEnabled = false;
+    this.musicInterval = null;
+  }
 
-  private initContext() {
+  initContext() {
     if (!this.ctx && typeof window !== 'undefined') {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (AudioContextClass) {
         this.ctx = new AudioContextClass();
       }
@@ -21,14 +23,13 @@ class SoundSystem {
     }
   }
 
-  public playSlice(combo: number = 1) {
+  playSlice(combo = 1) {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
 
     const now = this.ctx.currentTime;
 
-    // 1. Blade swoosh noise
     const bufferSize = this.ctx.sampleRate * 0.12;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -54,7 +55,6 @@ class SoundSystem {
     gain.connect(this.ctx.destination);
     noise.start(now);
 
-    // 2. Juicy squelch pop
     const osc = this.ctx.createOscillator();
     const oscGain = this.ctx.createGain();
     const baseFreq = 480 + Math.min(combo * 40, 400);
@@ -71,14 +71,13 @@ class SoundSystem {
     osc.stop(now + 0.1);
   }
 
-  public playBomb() {
+  playBomb() {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
 
     const now = this.ctx.currentTime;
 
-    // Sub rumble
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
@@ -93,7 +92,6 @@ class SoundSystem {
     osc.start(now);
     osc.stop(now + 0.7);
 
-    // Explosive noise
     const bufferSize = this.ctx.sampleRate * 0.5;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -118,7 +116,7 @@ class SoundSystem {
     noise.start(now);
   }
 
-  public playCombo(comboCount: number) {
+  playCombo(comboCount) {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
@@ -143,13 +141,13 @@ class SoundSystem {
     }
   }
 
-  public playHighScoreFanfare() {
+  playHighScoreFanfare() {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
 
     const now = this.ctx.currentTime;
-    const chord = [523.25, 659.25, 783.99, 1046.50]; // C Major
+    const chord = [523.25, 659.25, 783.99, 1046.50];
     chord.forEach((freq, idx) => {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
@@ -167,7 +165,7 @@ class SoundSystem {
     });
   }
 
-  public playButton() {
+  playButton() {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
@@ -188,7 +186,7 @@ class SoundSystem {
     osc.stop(now + 0.06);
   }
 
-  public playCountdownTick(isFinal: boolean = false) {
+  playCountdownTick(isFinal = false) {
     if (!this.sfxEnabled) return;
     this.initContext();
     if (!this.ctx) return;
@@ -208,7 +206,7 @@ class SoundSystem {
     osc.stop(now + 0.2);
   }
 
-  public toggleMusic(enable: boolean) {
+  toggleMusic(enable) {
     this.musicEnabled = enable;
     if (enable) {
       this.startMusic();
@@ -217,12 +215,11 @@ class SoundSystem {
     }
   }
 
-  private startMusic() {
+  startMusic() {
     this.stopMusic();
     this.initContext();
     if (!this.ctx) return;
 
-    // Upbeat 128BPM synth arcade arpeggio
     const bassline = [110, 110, 130.81, 146.83, 110, 110, 164.81, 146.83];
     let step = 0;
 
@@ -250,10 +247,10 @@ class SoundSystem {
       osc.start(now);
       osc.stop(now + 0.2);
       step++;
-    }, 234); // ~128 BPM eighth notes
+    }, 234);
   }
 
-  private stopMusic() {
+  stopMusic() {
     if (this.musicInterval !== null) {
       clearInterval(this.musicInterval);
       this.musicInterval = null;

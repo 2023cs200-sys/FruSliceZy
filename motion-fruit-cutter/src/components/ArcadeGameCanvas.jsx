@@ -1,18 +1,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { ActiveFruit, BladeTrailPoint, FloatingText, FruitType, GameSettings, Particle } from '../types';
-import { FRUIT_CONFIGS, BLADE_COLORS } from '../data/fruits';
-import { sound } from '../utils/sound';
+import { FRUIT_CONFIGS, BLADE_COLORS } from '../data/fruits.js';
+import { sound } from '../utils/sound.js';
 
-interface ArcadeGameCanvasProps {
-  isPaused: boolean;
-  settings: GameSettings;
-  onFruitSliced: (points: number, type: FruitType, comboCount: number) => void;
-  onBombHit: () => void;
-  onComboIncrement: (combo: number) => void;
-  combo: number;
-}
-
-export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
+export const ArcadeGameCanvas = ({
   isPaused,
   settings,
   onFruitSliced,
@@ -20,22 +10,21 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
   onComboIncrement,
   combo,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const fruitsRef = useRef<ActiveFruit[]>([]);
-  const particlesRef = useRef<Particle[]>([]);
-  const floatingTextsRef = useRef<FloatingText[]>([]);
-  const bladeTrailRef = useRef<BladeTrailPoint[]>([]);
-  const isMouseDownRef = useRef<boolean>(false);
-  const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
-  const nextFruitIdRef = useRef<number>(1);
-  const nextTextIdRef = useRef<number>(1);
-  const lastSpawnTimeRef = useRef<number>(0);
-  const lastSliceTimeRef = useRef<number>(0);
-  const currentComboSliceCountRef = useRef<number>(0);
-  const screenShakeRef = useRef<number>(0);
-  const screenFlashAlphaRef = useRef<number>(0);
+  const canvasRef = useRef(null);
+  const fruitsRef = useRef([]);
+  const particlesRef = useRef([]);
+  const floatingTextsRef = useRef([]);
+  const bladeTrailRef = useRef([]);
+  const isMouseDownRef = useRef(false);
+  const lastMousePosRef = useRef(null);
+  const nextFruitIdRef = useRef(1);
+  const nextTextIdRef = useRef(1);
+  const lastSpawnTimeRef = useRef(0);
+  const lastSliceTimeRef = useRef(0);
+  const currentComboSliceCountRef = useRef(0);
+  const screenShakeRef = useRef(0);
+  const screenFlashAlphaRef = useRef(0);
 
-  // Responsive canvas resizing
   useEffect(() => {
     const handleResize = () => {
       const canvas = canvasRef.current;
@@ -52,25 +41,20 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Spawn random fruit or bomb
-  const spawnFruit = useCallback((width: number, height: number) => {
-    const types: FruitType[] = ['APPLE', 'WATERMELON', 'ORANGE', 'BANANA', 'PINEAPPLE', 'BOMB'];
-    // 20% chance of bomb, 80% fruit
+  const spawnFruit = useCallback((width, height) => {
+    const types = ['APPLE', 'WATERMELON', 'ORANGE', 'BANANA', 'PINEAPPLE', 'BOMB'];
     const isBomb = Math.random() < 0.18;
     const fruitType = isBomb ? 'BOMB' : types[Math.floor(Math.random() * (types.length - 1))];
     const cfg = FRUIT_CONFIGS[fruitType];
 
-    // Spawn along bottom 70% width
     const minX = width * 0.15;
     const maxX = width * 0.85;
     const startX = minX + Math.random() * (maxX - minX);
     const startY = height + 40;
 
-    // Velocity towards center arc
     const targetX = width * 0.5 + (Math.random() - 0.5) * (width * 0.4);
     const timeToApex = 0.9 + Math.random() * 0.4;
     const vx = (targetX - startX) / (timeToApex * 60);
-    // Apex height between 15% and 35% of screen height
     const targetApexY = height * (0.15 + Math.random() * 0.25);
     const gravity = 0.38;
     const vy = -Math.sqrt(2 * gravity * (startY - targetApexY));
@@ -94,14 +78,12 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     });
   }, []);
 
-  // Trigger juice and fruit slice effects
   const sliceFruit = useCallback(
-    (fruit: ActiveFruit, sliceAngle: number) => {
+    (fruit, sliceAngle) => {
       fruit.isSliced = true;
       fruit.sliceAngle = sliceAngle;
       fruit.splitDistance = 0;
 
-      // Velocities for the two halves pushed apart along the normal of the slice
       const normalAngle = sliceAngle + Math.PI / 2;
       const pushSpeed = 3.5 + Math.random() * 2.5;
       fruit.half1Vx = fruit.vx + Math.cos(normalAngle) * pushSpeed;
@@ -124,13 +106,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       if (fruit.isBomb) {
-        // Bomb Hit!
         screenShakeRef.current = 24;
         screenFlashAlphaRef.current = 0.75;
         sound.playBomb();
         onBombHit();
 
-        // Bomb smoke & sparks explosion
         for (let i = 0; i < 45; i++) {
           const angle = Math.random() * Math.PI * 2;
           const spd = 2 + Math.random() * 9;
@@ -160,13 +140,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           maxLife: 45,
         });
       } else {
-        // Fruit cut!
         const cfg = FRUIT_CONFIGS[fruit.type];
         const points = cfg.points * (currentCombo > 1 ? currentCombo : 1);
         sound.playSlice(currentCombo);
         onFruitSliced(points, fruit.type, currentCombo);
 
-        // Splatter juice particles
         const particleCount = settings.graphicsQuality === 'ULTRA' ? 35 : settings.graphicsQuality === 'MEDIUM' ? 22 : 12;
         for (let i = 0; i < particleCount; i++) {
           const sprayAngle = normalAngle + (Math.random() - 0.5) * 1.5;
@@ -186,7 +164,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           });
         }
 
-        // Floating score indicator
         const textStr = currentCombo > 1 ? `+${points} x${currentCombo}` : `+${points}`;
         floatingTextsRef.current.push({
           id: nextTextIdRef.current++,
@@ -200,7 +177,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           maxLife: 35,
         });
 
-        // Vibrant "Critical!" splash for high-point slices or combos
         if (points >= 15 || currentCombo >= 3) {
           floatingTextsRef.current.push({
             id: nextTextIdRef.current++,
@@ -219,9 +195,8 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     [onFruitSliced, onBombHit, onComboIncrement, settings.graphicsQuality]
   );
 
-  // Line segment intersection with circle (fruit hit detection)
   const checkSliceCollision = useCallback(
-    (p1: { x: number; y: number }, p2: { x: number; y: number }) => {
+    (p1, p2) => {
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
       const len = Math.hypot(dx, dy);
@@ -232,7 +207,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       fruitsRef.current.forEach((fruit) => {
         if (fruit.isSliced) return;
 
-        // Distance from point to line segment
         const u = ((fruit.x - p1.x) * dx + (fruit.y - p1.y) * dy) / (len * len);
         const clampedU = Math.max(0, Math.min(1, u));
         const nearestX = p1.x + clampedU * dx;
@@ -247,8 +221,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     [sliceFruit]
   );
 
-  // Mouse & Touch event handlers
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const handlePointerDown = (e) => {
     isMouseDownRef.current = true;
     const rect = e.currentTarget.getBoundingClientRect();
     const pos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -261,7 +234,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     });
   };
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const handlePointerMove = (e) => {
     if (!isMouseDownRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -284,225 +257,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     lastMousePosRef.current = null;
   };
 
-  // Main Render Loop
-  useEffect(() => {
-    let animId: number;
-
-    const render = (time: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const { width, height } = canvas;
-
-      // Handle screen shake
-      let shakeX = 0;
-      let shakeY = 0;
-      if (screenShakeRef.current > 0) {
-        shakeX = (Math.random() - 0.5) * screenShakeRef.current;
-        shakeY = (Math.random() - 0.5) * screenShakeRef.current;
-        screenShakeRef.current *= 0.88;
-        if (screenShakeRef.current < 0.5) screenShakeRef.current = 0;
-      }
-
-      ctx.save();
-      ctx.translate(shakeX, shakeY);
-
-      // Clear with dark atmospheric gradient
-      ctx.clearRect(0, 0, width, height);
-
-      // Dynamic ambient lighting behind arena (Vibrant Palette radial gradient)
-      const centerGrad = ctx.createRadialGradient(
-        width / 2,
-        height * 0.45,
-        10,
-        width / 2,
-        height * 0.45,
-        width * 0.7
-      );
-      centerGrad.addColorStop(0, 'rgba(26, 28, 38, 0.65)');
-      centerGrad.addColorStop(0.5, 'rgba(12, 13, 18, 0.3)');
-      centerGrad.addColorStop(1, 'rgba(12, 13, 18, 0)');
-      ctx.fillStyle = centerGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      if (!isPaused) {
-        // Spawn fruits periodically (2 to 4 waves)
-        const spawnInterval = 1100;
-        if (time - lastSpawnTimeRef.current > spawnInterval) {
-          lastSpawnTimeRef.current = time;
-          const count = 1 + Math.floor(Math.random() * 2.2);
-          for (let i = 0; i < count; i++) {
-            setTimeout(() => {
-              if (canvasRef.current) {
-                spawnFruit(width, height);
-              }
-            }, i * 160);
-          }
-        }
-
-        // Update active fruits
-        const gravity = 0.38;
-        fruitsRef.current.forEach((fruit) => {
-          if (!fruit.isSliced) {
-            fruit.x += fruit.vx;
-            fruit.y += fruit.vy;
-            fruit.vy += gravity;
-            fruit.rotation += fruit.vRot;
-          } else {
-            // Split halves fly outward
-            if (fruit.half1Vx !== undefined && fruit.half1Vy !== undefined) {
-              fruit.half1Vy += gravity * 1.1;
-            }
-            if (fruit.half2Vx !== undefined && fruit.half2Vy !== undefined) {
-              fruit.half2Vy += gravity * 1.1;
-            }
-            fruit.splitDistance += 3.8;
-            fruit.rotation += fruit.vRot * 1.5;
-          }
-        });
-
-        // Filter out fruits that fell below screen
-        fruitsRef.current = fruitsRef.current.filter((f) => f.y < height + 150);
-
-        // Update juice & explosion particles
-        particlesRef.current.forEach((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += p.isJuiceSplash ? 0.25 : 0.1;
-          p.life++;
-          p.alpha = Math.max(0, 1 - p.life / p.maxLife);
-        });
-        particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
-
-        // Update floating score texts
-        floatingTextsRef.current.forEach((ft) => {
-          ft.y -= 1.8;
-          ft.life++;
-          ft.alpha = Math.max(0, 1 - ft.life / ft.maxLife);
-        });
-        floatingTextsRef.current = floatingTextsRef.current.filter((ft) => ft.life < ft.maxLife);
-      }
-
-      // Draw background juice splatters/droplets
-      particlesRef.current.forEach((p) => {
-        ctx.save();
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, Math.max(0.5, p.radius * (1 - p.life / p.maxLife * 0.4)), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      });
-
-      // Render 3D shaded fruits
-      fruitsRef.current.forEach((fruit) => {
-        ctx.save();
-        if (!fruit.isSliced) {
-          ctx.translate(fruit.x, fruit.y);
-          ctx.rotate(fruit.rotation);
-          drawFruit(ctx, fruit.type, fruit.radius, false);
-        } else {
-          // Render two split halves
-          const normalAngle = fruit.sliceAngle + Math.PI / 2;
-          const dist = fruit.splitDistance;
-
-          // Half 1
-          ctx.save();
-          const h1x = fruit.x + Math.cos(normalAngle) * dist;
-          const h1y = fruit.y + Math.sin(normalAngle) * dist;
-          ctx.translate(h1x, h1y);
-          ctx.rotate(fruit.rotation - dist * 0.02);
-          drawFruitHalf(ctx, fruit.type, fruit.radius, 1);
-          ctx.restore();
-
-          // Half 2
-          ctx.save();
-          const h2x = fruit.x - Math.cos(normalAngle) * dist;
-          const h2y = fruit.y - Math.sin(normalAngle) * dist;
-          ctx.translate(h2x, h2y);
-          ctx.rotate(fruit.rotation + dist * 0.02);
-          drawFruitHalf(ctx, fruit.type, fruit.radius, -1);
-          ctx.restore();
-        }
-        ctx.restore();
-      });
-
-      // Render Blade Slash Ribbon Trail
-      const bladeColor = BLADE_COLORS[settings.bladeStyle];
-      const trail = bladeTrailRef.current;
-      const now = performance.now();
-      const trailLifespan = 180; // ms
-
-      // Filter old trail points
-      bladeTrailRef.current = trail.filter((pt) => now - pt.time < trailLifespan);
-
-      if (bladeTrailRef.current.length > 1) {
-        ctx.save();
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        // Outer glow pass
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = bladeColor.glow;
-        ctx.strokeStyle = bladeColor.outer;
-        ctx.lineWidth = 14;
-
-        ctx.beginPath();
-        ctx.moveTo(bladeTrailRef.current[0].x, bladeTrailRef.current[0].y);
-        for (let i = 1; i < bladeTrailRef.current.length; i++) {
-          const p0 = bladeTrailRef.current[i - 1];
-          const p1 = bladeTrailRef.current[i];
-          const midX = (p0.x + p1.x) / 2;
-          const midY = (p0.y + p1.y) / 2;
-          ctx.quadraticCurveTo(p0.x, p0.y, midX, midY);
-        }
-        ctx.stroke();
-
-        // Inner bright laser core
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = bladeColor.spark;
-        ctx.strokeStyle = bladeColor.inner;
-        ctx.lineWidth = 5;
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // Render floating score indicators (+10, COMBO x3)
-      floatingTextsRef.current.forEach((ft) => {
-        ctx.save();
-        ctx.globalAlpha = ft.alpha;
-        ctx.font = `900 ${Math.floor(22 * ft.scale)}px 'Luckiest Guy', cursive, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#000000';
-        ctx.fillText(ft.text, ft.x + 2, ft.y + 2);
-        ctx.fillStyle = ft.color;
-        ctx.fillText(ft.text, ft.x, ft.y);
-        ctx.restore();
-      });
-
-      // Screen Flash overlay (for Bomb hits)
-      if (screenFlashAlphaRef.current > 0.01) {
-        ctx.fillStyle = `rgba(239, 68, 68, ${screenFlashAlphaRef.current})`;
-        ctx.fillRect(0, 0, width, height);
-        screenFlashAlphaRef.current *= 0.85;
-      }
-
-      ctx.restore();
-      animId = requestAnimationFrame(render);
-    };
-
-    animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
-  }, [isPaused, spawnFruit, settings.bladeStyle, settings.graphicsQuality]);
-
-  // Helper: Draw intact 3D Fruit
-  const drawFruit = (ctx: CanvasRenderingContext2D, type: FruitType, r: number, isHalf: boolean) => {
+  const drawFruit = (ctx, type, r) => {
     switch (type) {
       case 'APPLE': {
-        // Red 3D Apple with highlight and stem
         const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
         grad.addColorStop(0, '#f87171');
         grad.addColorStop(0.4, '#ef4444');
@@ -512,13 +269,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Gloss highlight
         ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.beginPath();
         ctx.ellipse(-r * 0.35, -r * 0.35, r * 0.3, r * 0.16, -Math.PI / 4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Stem & green leaf
         ctx.strokeStyle = '#5c2b0e';
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -534,7 +289,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       case 'WATERMELON': {
-        // Dark green striped watermelon
         const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
         grad.addColorStop(0, '#4ade80');
         grad.addColorStop(0.6, '#16a34a');
@@ -544,7 +298,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.ellipse(0, 0, r * 1.15, r * 0.95, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Dark green stripes
         ctx.strokeStyle = '#052e16';
         ctx.lineWidth = 5;
         for (let i = -2; i <= 2; i++) {
@@ -556,7 +309,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       case 'ORANGE': {
-        // 3D Citrus Orange
         const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
         grad.addColorStop(0, '#fed7aa');
         grad.addColorStop(0.3, '#f97316');
@@ -566,13 +318,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Navel stem point
         ctx.fillStyle = '#15803d';
         ctx.beginPath();
         ctx.arc(0, -r * 0.9, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Sheen
         ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
         ctx.beginPath();
         ctx.ellipse(-r * 0.3, -r * 0.3, r * 0.25, r * 0.15, -Math.PI / 4, 0, Math.PI * 2);
@@ -581,13 +331,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       case 'BANANA': {
-        // Curved Banana
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
         ctx.ellipse(0, 0, r * 1.3, r * 0.45, Math.PI / 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Dark tips & seam line
         ctx.strokeStyle = '#854d0e';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -603,7 +351,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       case 'PINEAPPLE': {
-        // Golden textured pineapple with spiky green crown
         const grad = ctx.createRadialGradient(-r * 0.25, -r * 0.25, r * 0.1, 0, 0, r);
         grad.addColorStop(0, '#fde047');
         grad.addColorStop(0.5, '#d97706');
@@ -613,7 +360,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.ellipse(0, r * 0.1, r * 0.8, r * 0.95, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Diamond pattern lines
         ctx.strokeStyle = 'rgba(120, 53, 15, 0.6)';
         ctx.lineWidth = 2.5;
         for (let offset = -r * 0.6; offset <= r * 0.6; offset += 18) {
@@ -627,7 +373,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.stroke();
         }
 
-        // Green spiky crown
         ctx.fillStyle = '#16a34a';
         ctx.beginPath();
         ctx.moveTo(-18, -r * 0.7);
@@ -643,7 +388,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       }
 
       case 'BOMB': {
-        // Metallic cast-iron bomb with gray border, red shadow, and hazard exclamation
         ctx.save();
         ctx.shadowColor = 'rgba(255, 62, 62, 0.45)';
         ctx.shadowBlur = 24;
@@ -657,23 +401,19 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Border-4 border-gray-700
         ctx.strokeStyle = '#4b5563';
         ctx.lineWidth = 3.5;
         ctx.stroke();
         ctx.restore();
 
-        // Specular highlight
         ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
         ctx.beginPath();
         ctx.ellipse(-r * 0.35, -r * 0.35, r * 0.28, r * 0.14, -Math.PI / 4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bomb cap
         ctx.fillStyle = '#64748b';
         ctx.fillRect(-8, -r - 5, 16, 6);
 
-        // Curving fuse rope
         ctx.strokeStyle = '#f59e0b';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -681,7 +421,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.quadraticCurveTo(10, -r - 18, 16, -r - 20);
         ctx.stroke();
 
-        // Sparkling fuse tip with vibrant colors
         const sparkTime = performance.now() * 0.02;
         const sparkRadius = 7 + Math.sin(sparkTime) * 3;
         const sparkGrad = ctx.createRadialGradient(16, -r - 20, 1, 16, -r - 20, sparkRadius);
@@ -694,7 +433,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.arc(16, -r - 20, sparkRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Hazard Exclamation Mark '!' in vibrant #ff3e3e
         ctx.fillStyle = '#ff3e3e';
         ctx.font = `900 ${Math.floor(r * 0.85)}px Arial, sans-serif`;
         ctx.textAlign = 'center';
@@ -705,19 +443,16 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     }
   };
 
-  // Helper: Draw sliced half fruit with juicy interior
-  const drawFruitHalf = (ctx: CanvasRenderingContext2D, type: FruitType, r: number, side: number) => {
-    // Clip half plane
+  const drawFruitHalf = (ctx, type, r, side) => {
     ctx.save();
     ctx.beginPath();
     ctx.arc(0, 0, r, side > 0 ? 0 : Math.PI, side > 0 ? Math.PI : Math.PI * 2);
     ctx.closePath();
     ctx.clip();
 
-    drawFruit(ctx, type, r, true);
+    drawFruit(ctx, type, r);
     ctx.restore();
 
-    // Sliced flat face interior
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(-r, 0);
@@ -725,11 +460,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
     switch (type) {
       case 'WATERMELON': {
-        // Red juicy flesh and seeds
         ctx.fillStyle = '#ff3e3e';
         ctx.fillRect(-r * 0.9, -4, r * 1.8, 8);
         ctx.fillStyle = '#0f172a';
-        // Seeds
         ctx.beginPath();
         ctx.arc(-r * 0.4, 0, 2.5, 0, Math.PI * 2);
         ctx.arc(r * 0.35, 0, 2.5, 0, Math.PI * 2);
@@ -762,6 +495,199 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     }
     ctx.restore();
   };
+
+  useEffect(() => {
+    let animId;
+
+    const render = (time) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const { width, height } = canvas;
+
+      let shakeX = 0;
+      let shakeY = 0;
+      if (screenShakeRef.current > 0) {
+        shakeX = (Math.random() - 0.5) * screenShakeRef.current;
+        shakeY = (Math.random() - 0.5) * screenShakeRef.current;
+        screenShakeRef.current *= 0.88;
+        if (screenShakeRef.current < 0.5) screenShakeRef.current = 0;
+      }
+
+      ctx.save();
+      ctx.translate(shakeX, shakeY);
+
+      ctx.clearRect(0, 0, width, height);
+
+      const centerGrad = ctx.createRadialGradient(
+        width / 2,
+        height * 0.45,
+        10,
+        width / 2,
+        height * 0.45,
+        width * 0.7
+      );
+      centerGrad.addColorStop(0, 'rgba(26, 28, 38, 0.65)');
+      centerGrad.addColorStop(0.5, 'rgba(12, 13, 18, 0.3)');
+      centerGrad.addColorStop(1, 'rgba(12, 13, 18, 0)');
+      ctx.fillStyle = centerGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      if (!isPaused) {
+        const spawnInterval = 1100;
+        if (time - lastSpawnTimeRef.current > spawnInterval) {
+          lastSpawnTimeRef.current = time;
+          const count = 1 + Math.floor(Math.random() * 2.2);
+          for (let i = 0; i < count; i++) {
+            setTimeout(() => {
+              if (canvasRef.current) {
+                spawnFruit(width, height);
+              }
+            }, i * 160);
+          }
+        }
+
+        const gravity = 0.38;
+        fruitsRef.current.forEach((fruit) => {
+          if (!fruit.isSliced) {
+            fruit.x += fruit.vx;
+            fruit.y += fruit.vy;
+            fruit.vy += gravity;
+            fruit.rotation += fruit.vRot;
+          } else {
+            if (fruit.half1Vx !== undefined && fruit.half1Vy !== undefined) {
+              fruit.half1Vy += gravity * 1.1;
+            }
+            if (fruit.half2Vx !== undefined && fruit.half2Vy !== undefined) {
+              fruit.half2Vy += gravity * 1.1;
+            }
+            fruit.splitDistance += 3.8;
+            fruit.rotation += fruit.vRot * 1.5;
+          }
+        });
+
+        fruitsRef.current = fruitsRef.current.filter((f) => f.y < height + 150);
+
+        particlesRef.current.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.isJuiceSplash ? 0.25 : 0.1;
+          p.life++;
+          p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+        });
+        particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
+
+        floatingTextsRef.current.forEach((ft) => {
+          ft.y -= 1.8;
+          ft.life++;
+          ft.alpha = Math.max(0, 1 - ft.life / ft.maxLife);
+        });
+        floatingTextsRef.current = floatingTextsRef.current.filter((ft) => ft.life < ft.maxLife);
+      }
+
+      particlesRef.current.forEach((p) => {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(0.5, p.radius * (1 - (p.life / p.maxLife) * 0.4)), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      fruitsRef.current.forEach((fruit) => {
+        ctx.save();
+        if (!fruit.isSliced) {
+          ctx.translate(fruit.x, fruit.y);
+          ctx.rotate(fruit.rotation);
+          drawFruit(ctx, fruit.type, fruit.radius);
+        } else {
+          const normalAngle = fruit.sliceAngle + Math.PI / 2;
+          const dist = fruit.splitDistance;
+
+          ctx.save();
+          const h1x = fruit.x + Math.cos(normalAngle) * dist;
+          const h1y = fruit.y + Math.sin(normalAngle) * dist;
+          ctx.translate(h1x, h1y);
+          ctx.rotate(fruit.rotation - dist * 0.02);
+          drawFruitHalf(ctx, fruit.type, fruit.radius, 1);
+          ctx.restore();
+
+          ctx.save();
+          const h2x = fruit.x - Math.cos(normalAngle) * dist;
+          const h2y = fruit.y - Math.sin(normalAngle) * dist;
+          ctx.translate(h2x, h2y);
+          ctx.rotate(fruit.rotation + dist * 0.02);
+          drawFruitHalf(ctx, fruit.type, fruit.radius, -1);
+          ctx.restore();
+        }
+        ctx.restore();
+      });
+
+      const bladeColor = BLADE_COLORS[settings.bladeStyle];
+      const trail = bladeTrailRef.current;
+      const now = performance.now();
+      const trailLifespan = 180;
+
+      bladeTrailRef.current = trail.filter((pt) => now - pt.time < trailLifespan);
+
+      if (bladeTrailRef.current.length > 1) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = bladeColor.glow;
+        ctx.strokeStyle = bladeColor.outer;
+        ctx.lineWidth = 14;
+
+        ctx.beginPath();
+        ctx.moveTo(bladeTrailRef.current[0].x, bladeTrailRef.current[0].y);
+        for (let i = 1; i < bladeTrailRef.current.length; i++) {
+          const p0 = bladeTrailRef.current[i - 1];
+          const p1 = bladeTrailRef.current[i];
+          const midX = (p0.x + p1.x) / 2;
+          const midY = (p0.y + p1.y) / 2;
+          ctx.quadraticCurveTo(p0.x, p0.y, midX, midY);
+        }
+        ctx.stroke();
+
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = bladeColor.spark;
+        ctx.strokeStyle = bladeColor.inner;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      floatingTextsRef.current.forEach((ft) => {
+        ctx.save();
+        ctx.globalAlpha = ft.alpha;
+        ctx.font = `900 ${Math.floor(22 * ft.scale)}px 'Luckiest Guy', cursive, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(ft.text, ft.x + 2, ft.y + 2);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      });
+
+      if (screenFlashAlphaRef.current > 0.01) {
+        ctx.fillStyle = `rgba(239, 68, 68, ${screenFlashAlphaRef.current})`;
+        ctx.fillRect(0, 0, width, height);
+        screenFlashAlphaRef.current *= 0.85;
+      }
+
+      ctx.restore();
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, [isPaused, spawnFruit, settings.bladeStyle, settings.graphicsQuality]);
 
   return (
     <div id="gameplay-arena-container" className="relative w-full h-full cursor-crosshair select-none touch-none overflow-hidden">

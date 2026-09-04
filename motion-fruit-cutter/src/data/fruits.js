@@ -1,6 +1,4 @@
-import { FruitConfig, FruitType, HighScoreEntry } from '../types';
-
-export const FRUIT_CONFIGS: Record<FruitType, FruitConfig> = {
+export const FRUIT_CONFIGS = {
   APPLE: {
     type: 'APPLE',
     name: 'Red Apple',
@@ -63,7 +61,7 @@ export const FRUIT_CONFIGS: Record<FruitType, FruitConfig> = {
   },
 };
 
-export const INITIAL_HIGH_SCORES: HighScoreEntry[] = [
+export const INITIAL_HIGH_SCORES = [
   { rank: 1, playerName: 'NINJA_ACE', score: 12840, fruitsCut: 94, combo: 12, date: 'TODAY' },
   { rank: 2, playerName: 'BLADE_VIPER', score: 9980, fruitsCut: 78, combo: 9, date: 'YESTERDAY' },
   { rank: 3, playerName: 'MOTION_DEV', score: 7870, fruitsCut: 71, combo: 8, date: '3 DAYS AGO' },

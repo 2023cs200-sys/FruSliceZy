@@ -1,27 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Pause, Flame, Volume2, VolumeX, ShieldAlert, Sparkles } from 'lucide-react';
+import { Pause, Volume2, VolumeX, ShieldAlert, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GameStats } from '../types';
 
-interface HUDProps {
-  stats: GameStats;
-  onPause: () => void;
-  soundEnabled: boolean;
-  onToggleSound: () => void;
-  bombAlert: boolean;
-}
-
-export const HUD: React.FC<HUDProps> = ({
-  stats,
-  onPause,
-  soundEnabled,
-  onToggleSound,
-  bombAlert,
-}) => {
+export const HUD = ({ stats, onPause, soundEnabled, onToggleSound, bombAlert }) => {
   const [scoreScale, setScoreScale] = useState(1);
   const [lastScore, setLastScore] = useState(stats.score);
 
-  // Score bump animation on point increase
   useEffect(() => {
     if (stats.score > lastScore) {
       setScoreScale(1.25);
@@ -32,11 +16,9 @@ export const HUD: React.FC<HUDProps> = ({
     setLastScore(stats.score);
   }, [stats.score, lastScore]);
 
-  // Time progress fraction
   const timePercent = Math.max(0, Math.min(100, (stats.timeRemaining / stats.initialTime) * 100));
   const isTimeCritical = stats.timeRemaining <= 10;
 
-  // Format time as M:SS
   const minutes = Math.floor(stats.timeRemaining / 60);
   const seconds = stats.timeRemaining % 60;
   const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -61,13 +43,11 @@ export const HUD: React.FC<HUDProps> = ({
         )}
       </AnimatePresence>
 
-      {/* TOP ROW: SCORE, COMBO, TIME */}
+      {/* TOP ROW */}
       <div id="hud-top-bar" className="flex items-start justify-between w-full">
-        {/* Top-Left: Large Vibrant SCORE */}
+        {/* Score */}
         <div id="hud-score-widget" className="pointer-events-auto flex flex-col">
-          <div className="text-gray-400 text-xs font-black tracking-widest uppercase mb-1">
-            Score
-          </div>
+          <div className="text-gray-400 text-xs font-black tracking-widest uppercase mb-1">Score</div>
           <motion.div
             animate={{ scale: scoreScale }}
             transition={{ type: 'spring', stiffness: 500, damping: 15 }}
@@ -84,7 +64,7 @@ export const HUD: React.FC<HUDProps> = ({
           </div>
         </div>
 
-        {/* Top-Center: Large Vibrant COMBO indicator */}
+        {/* Combo */}
         <div id="hud-combo-widget" className="flex flex-col items-center">
           <AnimatePresence>
             {stats.currentCombo > 1 && (
@@ -112,26 +92,13 @@ export const HUD: React.FC<HUDProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Top-Right: Vibrant Circular TIME Gauge */}
+        {/* Timer */}
         <div id="hud-time-widget" className="pointer-events-auto flex flex-col items-end">
           <div className="relative w-16 h-16 sm:w-20 sm:h-20">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-gray-800" />
               <circle
-                cx="40"
-                cy="40"
-                r="36"
-                stroke="currentColor"
-                strokeWidth="6"
-                fill="transparent"
-                className="text-gray-800"
-              />
-              <circle
-                cx="40"
-                cy="40"
-                r="36"
-                stroke="currentColor"
-                strokeWidth="6"
-                fill="transparent"
+                cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent"
                 className={isTimeCritical ? 'text-red-400 animate-pulse' : 'text-[#ff3e3e]'}
                 strokeDasharray="226"
                 strokeDashoffset={226 - (226 * timePercent) / 100}
@@ -142,19 +109,14 @@ export const HUD: React.FC<HUDProps> = ({
               {stats.timeRemaining}s
             </div>
           </div>
-          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">
-            Time Remaining
-          </div>
+          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Time Remaining</div>
         </div>
       </div>
 
-      {/* BOTTOM ROW: ARENA, HIGH SCORE, AUDIO & PAUSE BUTTON */}
+      {/* BOTTOM ROW */}
       <div id="hud-bottom-bar" className="flex items-end justify-between w-full">
-        {/* Bottom-Left: Arena & Level */}
         <div id="hud-level-badge" className="pointer-events-auto flex flex-col gap-1">
-          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">
-            Arena
-          </div>
+          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Arena</div>
           <div className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
             <span>ZEN GARDEN</span>
             <span className="text-blue-500 font-black">Lvl 04</span>
@@ -169,15 +131,10 @@ export const HUD: React.FC<HUDProps> = ({
           </div>
         </div>
 
-        {/* Bottom-Right: High Score & Controls */}
         <div id="hud-actions" className="pointer-events-auto flex items-center gap-4 sm:gap-6">
           <div className="flex flex-col items-end">
-            <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">
-              High Score
-            </div>
-            <div className="text-lg sm:text-xl font-bold font-mono text-white">
-              {stats.bestScore.toLocaleString()}
-            </div>
+            <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">High Score</div>
+            <div className="text-lg sm:text-xl font-bold font-mono text-white">{stats.bestScore.toLocaleString()}</div>
           </div>
 
           <button
