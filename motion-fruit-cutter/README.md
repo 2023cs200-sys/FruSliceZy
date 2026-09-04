@@ -56,8 +56,8 @@ combo multiplier; hitting a bomb breaks the combo and reduces the score.
 
 ## Relationship To The Full Project
 
-The phone controller is in `../mobile-controller`. The optional Python/Ursina
-experiment is in `../python-game`, but it is not part of the production flow:
+The phone controller is in `../mobile-controller`. The Python WebSocket
+backend is in `../python-game`:
 
 ```text
 Phone accelerometer/gyroscope -> WebSocket -> Browser game -> virtual sword

@@ -9,14 +9,6 @@
       "cwd": "${workspaceFolder}/python-game",
       "console": "integratedTerminal"
     },
-    {
-      "name": "Run All Tests (headless, no window)",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "pytest",
-      "args": ["-v"],
-      "cwd": "${workspaceFolder}/python-game",
-      "console": "integratedTerminal"
     }
   ]
 }
