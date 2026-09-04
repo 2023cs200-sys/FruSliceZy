@@ -1,3 +1,4 @@
+from src.utils.vector import Vector2
 """The slicing engine: turn one whole fruit into two animated halves.
 
 Physics contract (documented for Section 3):
@@ -17,7 +18,7 @@ Physics contract (documented for Section 3):
 import math
 import random
 
-from ursina import Entity, Vec3, color, destroy, time
+
 
 from config import config
 from src.objects.fruit_meshes import FRUIT_GEO
@@ -30,10 +31,10 @@ _FALLBACK_HALF_SCALE = 0.5
 def slash_direction(sword):
     """Direction the sword tip moved through the fruit, in the XY plane."""
     d = sword.tip_position - sword.previous_tip_position
-    d = Vec3(d.x, d.y, 0)
+    d = Vector2(d.x, d.y, 0)
     if d.length() > 0.001:
         return d.normalized()
-    return Vec3(1, 0, 0)
+    return Vector2(1, 0, 0)
 
 
 def half_velocities(fruit_velocity, slash_dir, push, inherit=0.4):
@@ -42,12 +43,12 @@ def half_velocities(fruit_velocity, slash_dir, push, inherit=0.4):
     push      : how hard the halves fly apart (config.effects.half_push)
     inherit   : fraction of the fruit's momentum kept (0..1)
     """
-    perp = Vec3(-slash_dir.y, slash_dir.x, 0)
+    perp = Vector2(-slash_dir.y, slash_dir.x, 0)
     base = fruit_velocity * inherit
     return base + perp * push, base - perp * push
 
 
-class SlicedHalf(Entity):
+class SlicedHalf:
     """One half of a cut fruit: flies apart, spins, falls, fades, destroys."""
 
     def __init__(
@@ -80,7 +81,7 @@ class SlicedHalf(Entity):
 
         # Cut plane is x=0 in the half's local space. Rotate around Z so the
         # separation axis (local +/-X) aligns with `perp` = 90deg off the slash.
-        perp = Vec3(-slash_dir.y, slash_dir.x, 0)
+        perp = Vector2(-slash_dir.y, slash_dir.x, 0)
         self.rotation_z = math.degrees(math.atan2(perp.y, perp.x))
 
         self.velocity = velocity
@@ -106,7 +107,7 @@ class SlicedHalf(Entity):
         if self.age >= self.lifetime:
             destroy(self)
             return
-        self.velocity += Vec3(0, -config.physics.gravity * dt, 0)
+        self.velocity += Vector2(0, -config.physics.gravity * dt, 0)
         self.position += self.velocity * dt
         self.rotation_z += self.spin * dt * 0.3
         self.rotation_x += self.spin * dt * 0.6

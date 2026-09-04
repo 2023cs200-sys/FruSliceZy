@@ -32,3 +32,15 @@
 | TC28 | Slash trail | Move sword quickly | Trail is visible behind the sword |
 | TC29 | 3D collision | Slash through 3D object | Hit is registered only for fast movement |
 | TC30 | Missing model | Remove a model file | Game reports an error without crashing |
+
+## Execution Status
+
+These are target scenarios, not a report of completed execution. The browser
+prototype currently provides the practical path for TC09-TC16, TC22, and
+parts of TC23-TC24 using mouse or touch input. TC01 is partially available
+through the Expo home screen.
+
+TC02-TC08, TC17-TC21, and TC25-TC30 depend on mobile sensors, persistence,
+LAN protocol handling, or a complete Python 3D runtime and are currently
+planned, blocked, or not implemented. Add an execution result and environment
+to this table when those capabilities are delivered.

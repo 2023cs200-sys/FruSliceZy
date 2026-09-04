@@ -1,18 +1,5 @@
-from ursina import Ursina
+import asyncio
+from src.networking.websocket_server import main
 
-from config import config
-from src.game.game import Game
-
-app = Ursina(title=config.window.title, size=config.window.size)
-game = Game()
-
-
-def update():
-    game.update()
-
-
-def input(key):
-    game.handle_input(key)
-
-
-app.run()
+if __name__ == "__main__":
+    asyncio.run(main())

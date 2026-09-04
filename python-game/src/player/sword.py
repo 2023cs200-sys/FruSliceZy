@@ -1,8 +1,9 @@
+from src.utils.vector import Vector2
 from math import cos, radians, sin, tan
 
-from ursina import Entity, Vec3, camera, color, mouse, time
-from ursina.models.procedural.cone import Cone
-from ursina.models.procedural.cylinder import Cylinder
+
+
+
 
 from config import config
 from src.utils.helpers import clamp
@@ -15,7 +16,7 @@ _BLADE_Y0 = 0.05
 _TIP_Y = 1.75
 
 
-class Sword(Entity):
+class Sword:
     def __init__(self):
         super().__init__(position=(0, 0, config.play_area.plane_z))
 
@@ -87,11 +88,11 @@ class Sword(Entity):
 
         self.motion_mapper = MotionMapper()
         self.previous_tip_position = self.tip_position
-        self.velocity = Vec3(0, 0, 0)
+        self.velocity = Vector2(0, 0, 0)
 
     @property
     def tip_position(self):
-        return self.position + Vec3(0, 1.75, 0)
+        return self.position + Vector2(0, 1.75, 0)
 
     @property
     def speed(self):
@@ -111,7 +112,7 @@ class Sword(Entity):
     def mouse_world_position():
         distance = abs(config.play_area.plane_z - camera.z)
         world_height = tan(radians(camera.fov / 2)) * distance * 2
-        return Vec3(
+        return Vector2(
             mouse.position.x * world_height,
             mouse.position.y * world_height,
             config.play_area.plane_z,

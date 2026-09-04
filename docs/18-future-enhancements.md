@@ -82,3 +82,21 @@ Expand support for additional mobile devices and desktop platforms.
 ## 12. Future Vision
 
 The long-term goal could be to turn FruSliceZy into a more immersive motion-controlled gaming platform where smartphones can act as flexible physical controllers for different games.
+
+## Priority Status
+
+The browser prototype already includes slicing visuals, slash trails,
+particles, screen shake, combos, bombs, settings, and session high scores.
+Those items are not future work for that package.
+
+The highest-priority unfinished work is:
+
+1. Implement Expo sensor subscriptions, calibration, and controller UI.
+2. Define and validate the motion WebSocket protocol.
+3. Bind the Python server for safe LAN use and connect motion to the sword.
+4. Repair missing Python modules and complete the desktop Ursina runtime.
+5. Add real fruit/bomb assets, persistence, dynamic difficulty, and automated
+	mobile/protocol/end-to-end tests.
+
+Optional future work includes power-ups, additional game modes, profiles,
+leaderboards, Bluetooth, advanced gesture recognition, and multiplayer.

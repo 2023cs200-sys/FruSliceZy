@@ -108,3 +108,15 @@ A high-score record may contain:
   "date": "2026-08-27"
 }
 ```
+
+## Implementation Status
+
+The mechanics above are the target game design. The browser prototype
+implements fruit and bomb spawning, slicing, split visuals, particles, a
+60-second round, pause/game-over flow, combos, and in-memory high scores. In
+that prototype, hitting a bomb subtracts 50 points and resets the current
+combo; slices within roughly 400 ms build a combo.
+
+The Python modules contain partial game and scoring foundations, but Python
+bomb objects, dynamic difficulty, phone-driven slashes, and persistent scores
+are not currently implemented end to end.

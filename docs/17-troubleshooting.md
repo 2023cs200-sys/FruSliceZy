@@ -105,3 +105,19 @@ The game should display a disconnected state. Restart or reconnect the controlle
 ## 12. Firewall Issues
 
 If the phone cannot reach the laptop despite using the correct IP, check whether the Python application or configured WebSocket port is allowed through the firewall.
+
+## Current Implementation Notes
+
+The phone connection and motion-detection sections describe planned
+functionality. The Expo connection/controller screens are placeholders, and
+the Python server listens only on `localhost:8765`, so a phone on the same
+Wi-Fi network cannot reach it yet.
+
+If `python main.py` fails with an import error, check the missing modules under
+`python-game/src/objects` and `python-game/src/ui`; the current repository has
+known incomplete imports. Installing dependencies alone does not resolve
+those source-level blockers.
+
+For the supported browser path, run commands from `motion-fruit-cutter` and
+use `npm run build` to distinguish application errors from development-server
+issues.

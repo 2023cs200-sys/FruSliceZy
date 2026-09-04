@@ -72,3 +72,17 @@ When the round ends, the game displays:
 - Calibrate before playing.
 - Use controlled movements.
 - Avoid extremely aggressive movements.
+
+## Browser Prototype
+
+The currently playable version runs in `motion-fruit-cutter`. Start it with
+`npm run dev`, choose Start from the main menu, and drag or swipe across the
+play area to slice fruit. Avoid bombs: they reduce the score by 50 and reset
+the current combo. The round lasts 60 seconds. Scores and settings are kept
+only for the current browser session.
+
+## Phone Controller Status
+
+The phone instructions above describe the planned experience. The Expo
+connection, sensor, calibration, and WebSocket flow is not implemented yet,
+so a phone cannot currently control the browser prototype.

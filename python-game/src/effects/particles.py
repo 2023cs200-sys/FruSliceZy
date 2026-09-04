@@ -1,3 +1,4 @@
+from src.utils.vector import Vector2
 """Juice, chunk, slash, and screen-flash effects (Section 4).
 
 Design notes:
@@ -13,7 +14,7 @@ Design notes:
 
 import random
 
-from ursina import Entity, Text, Vec3, camera, color, destroy, time
+
 
 from config import config
 from src.utils.constants import (
@@ -28,7 +29,7 @@ JUICE_GRAVITY = 15.0
 CHUNK_GRAVITY = 22.0
 
 
-class _Particle(Entity):
+class _Particle:
     def __init__(self, position, rgb, velocity, lifetime, model="circle", scale=None):
         super().__init__(
             model=model,
@@ -46,12 +47,12 @@ class _Particle(Entity):
         if self.age >= self.lifetime:
             destroy(self)
             return
-        self.velocity += Vec3(0, -JUICE_GRAVITY * time.dt, 0)
+        self.velocity += Vector2(0, -JUICE_GRAVITY * time.dt, 0)
         self.position += self.velocity * time.dt
         self.alpha = 1 - self.age / self.lifetime
 
 
-class _Chunk(Entity):
+class _Chunk:
     """Peel/skin debris: a small spinning tinted quad that falls fast."""
 
     def __init__(self, position, rgb, velocity, lifetime):
@@ -72,13 +73,13 @@ class _Chunk(Entity):
         if self.age >= self.lifetime:
             destroy(self)
             return
-        self.velocity += Vec3(0, -CHUNK_GRAVITY * time.dt, 0)
+        self.velocity += Vector2(0, -CHUNK_GRAVITY * time.dt, 0)
         self.position += self.velocity * time.dt
         self.rotation_z += self.spin * time.dt
         self.alpha = 1 - self.age / self.lifetime
 
 
-class _SlashFlash(Entity):
+class _SlashFlash:
     """Bright streak along the slash, fading in ~0.15s."""
 
     def __init__(self, position, direction, length=None):
@@ -109,7 +110,7 @@ class _ScorePopup(Text):
     def __init__(self, position, content, lifetime):
         super().__init__(
             text=content,
-            position=position + Vec3(0, 0.6, -0.3),
+            position=position + Vector2(0, 0.6, -0.3),
             scale=0.7,
             origin=(0, 0),
             color=color.rgb32(255, 235, 120),
@@ -174,13 +175,13 @@ class ScreenFlash:
 def juice_burst(position, rgb):
     """Droplet spray with real z-spread toward the camera."""
     for _ in range(JUICE_PARTICLE_COUNT):
-        velocity = Vec3(
+        velocity = Vector2(
             random.uniform(-4, 4),
             random.uniform(-1, 6),
             random.uniform(-JUICE_Z_SPREAD, JUICE_Z_SPREAD),
         )
         _Particle(
-            Vec3(position),
+            Vector2(position),
             rgb,
             velocity,
             random.uniform(0.3, 0.6),
@@ -190,20 +191,20 @@ def juice_burst(position, rgb):
 
 def fruit_chunks(position, rgb, direction=None):
     """Peel/skin debris flung along the slash, spinning as it falls."""
-    base = Vec3(direction) if direction is not None else Vec3(0, 1, 0)
+    base = Vector2(direction) if direction is not None else Vector2(0, 1, 0)
     for _ in range(FRUIT_CHUNK_COUNT):
-        velocity = Vec3(
+        velocity = Vector2(
             base.x * random.uniform(1.5, 4.0) + random.uniform(-1.5, 1.5),
             base.y * random.uniform(1.5, 4.0) + random.uniform(1.0, 3.0),
             random.uniform(-1.2, 1.2),
         )
-        _Chunk(Vec3(position), rgb, velocity, random.uniform(0.4, 0.7))
+        _Chunk(Vector2(position), rgb, velocity, random.uniform(0.4, 0.7))
 
 
 def slash_flash(position, direction):
     """White-hot streak along the swipe at the cut point."""
-    _SlashFlash(Vec3(position), direction)
+    _SlashFlash(Vector2(position), direction)
 
 
 def score_popup(position, content):
-    _ScorePopup(Vec3(position), content, SCORE_POPUP_LIFETIME)
+    _ScorePopup(Vector2(position), content, SCORE_POPUP_LIFETIME)

@@ -2,7 +2,8 @@
 
 ## 1. Overview
 
-FruSliceZy is primarily designed as a local-network project. The mobile controller and laptop game can be deployed separately.
+FruSliceZy is primarily designed as a local-network project. The mobile
+controller and browser game can be deployed separately.
 
 ## 2. Mobile Application
 
@@ -43,7 +44,7 @@ Recommended setup:
 
 ## 6. Pre-Demonstration Checklist
 
-- Start the laptop game.
+- Start the browser game.
 - Verify the WebSocket server is running.
 - Connect the smartphone to the same Wi-Fi.
 - Open the mobile controller.
@@ -56,3 +57,15 @@ Recommended setup:
 ## 7. Offline Operation
 
 After all software dependencies are installed, the actual game communication does not require internet access. The smartphone and laptop only need to communicate through the local network.
+
+## Current Deployment Status
+
+The browser prototype can be built for static hosting from
+`motion-fruit-cutter` with `npm run build`; the generated `dist/` directory
+is standalone and does not require a Python server.
+
+The phone-to-browser deployment is not end to end. Before a demonstration can
+use it, the server must bind to a reachable LAN interface instead of
+`localhost`, the mobile connection and sensor screens must be implemented, and
+the missing Python runtime modules/assets must be supplied. Treat the LAN
+checklist above as a future deployment plan.

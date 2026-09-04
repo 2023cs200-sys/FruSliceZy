@@ -1,0 +1,64 @@
+# FruSliceZy Task Tracker
+
+This tracker reflects the current repository rather than the original target
+specification.
+
+## Completed
+
+- [x] Build a playable React/Vite browser prototype.
+- [x] Add mouse and touch fruit slicing.
+- [x] Add fruit splitting visuals, particles, sound, combos, bombs, pause,
+      game-over, settings, and session high scores.
+- [x] Create the Expo Router mobile-controller shell.
+- [x] Create Python game, scoring, collision, effects, and WebSocket
+      foundations.
+- [x] Add Python tests for the available game-logic areas.
+
+## In Progress
+
+- [ ] Implement the mobile connection and controller screens for the browser host.
+- [ ] Implement accelerometer and gyroscope subscriptions and calibration.
+- [ ] Define and validate the motion WebSocket messages.
+- [ ] Connect received motion to the browser sword and collision loop.
+
+## Planned
+
+- [ ] Host a browser-facing WebSocket endpoint on the laptop.
+- [ ] Keep Python/Ursina as an optional 3D experiment, or archive it later.
+- [ ] Implement persistent high scores and settings.
+- [ ] Implement dynamic difficulty in the browser game.
+- [ ] Add mobile, protocol, persistence, and end-to-end tests.
+- [ ] Package browser, mobile, and desktop demonstration builds.
+
+## Supported Commands
+
+Browser prototype:
+
+```powershell
+cd motion-fruit-cutter
+npm install
+npm run dev
+npm run build
+```
+
+Mobile controller:
+
+```powershell
+cd mobile-controller
+npm install
+npm start
+```
+
+Optional Python/Ursina experiment:
+
+```powershell
+cd python-game
+python -m venv venv
+venv\Scripts\activate
+python -m pip install -r requirements.txt
+python main.py
+```
+
+The browser prototype is the primary game. The mobile command starts the
+controller foundation, while the Python command starts an optional legacy
+experiment; neither currently provides end-to-end phone control.
