@@ -1,9 +1,8 @@
 # FruSliceZy
 
 FruSliceZy is a motion-controlled fruit-cutting game project. The selected
-architecture uses a phone as a sword controller and the browser as the game
-host. The repository also contains an optional Python/Ursina experiment, but
-it is not required by the primary product.
+architecture uses a phone as a sword controller, a Python WebSocket backend,
+and the browser as the game host.
 
 ## Project Parts
 
@@ -11,7 +10,7 @@ it is not required by the primary product.
 | --- | --- | --- |
 | `motion-fruit-cutter` | Primary game client with menus, HUD, fruit spawning, slicing, combos, bombs, effects, sound, and high scores | React, Vite |
 | `mobile-controller` | Phone-only motion controller; sends sensor events to the browser game | React Native, Expo |
-| `python-game` | Optional legacy 3D experiment and WebSocket server foundation; outside the primary runtime | Python, Ursina, websockets |
+| `python-game` | Python WebSocket backend that relays controller messages between the phone and browser | Python, websockets |
 | `docs` | Requirements, architecture, protocol, design, testing, and operations documentation | Markdown |
 
 ## Quick Start: Browser Prototype
@@ -52,7 +51,7 @@ provides the home, connection, controller, and settings routes. The
 connection and controller screens are placeholders while the sensor and
 WebSocket integration is being completed.
 
-## Optional: Python/Ursina Experiment
+## Quick Start: Python WebSocket Backend
 
 Prerequisites: Python 3.10 or newer is recommended. The game dependencies are
 listed in `python-game/requirements.txt`.
@@ -65,21 +64,17 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-This project is retained for reference and optional 3D experimentation. It is
-not needed to run the primary browser game. Its server currently starts on
-`ws://localhost:8765`, but it is not the production controller endpoint.
+The backend relays JSON messages between connected Expo and browser clients.
+It does not render the game and does not require Ursina.
+
+The server listens on all network interfaces at port `8765`. Use the laptop's
+local IP address from the mobile controller, for example
+`ws://192.168.1.10:8765`.
 
 ## Testing
 
-Run the Python test suite from the game directory:
-
-```powershell
-cd python-game
-python -m pytest
-```
-
-The tests cover collision detection, fruit geometry, slicing, particles,
-sword trails, scoring, combos, and game integration.
+The current backend has no automated test suite. Browser and mobile tests
+should be added alongside the controller integration.
 
 ## Architecture
 
@@ -91,8 +86,9 @@ Phone sensors -> motion detection -> WebSocket -> Browser game
 								  -> sliced fruit, score, combo, effects
 ```
 
-The phone and laptop are designed to communicate over the same local Wi-Fi
-network. See the focused documentation in `docs/`, especially:
+The phone and laptop communicate over the same local Wi-Fi network through the
+Python backend, with the browser owning the game UI and gameplay. See the
+focused documentation in `docs/`, especially:
 
 - [Project overview](docs/01-project-overview.md)
 - [System architecture](docs/04-system-architecture.md)
@@ -102,6 +98,6 @@ network. See the focused documentation in `docs/`, especially:
 
 ## Current Status
 
-The browser experience is the primary product. The Expo app's sensor and
-WebSocket integration is still incomplete. The Python/Ursina branch is
-optional and is not part of the selected production architecture.
+The browser experience is the primary game. The Expo app's sensor and
+WebSocket integration is still incomplete. Python is the selected backend;
+Ursina and the old Python 3D game modules are no longer required.

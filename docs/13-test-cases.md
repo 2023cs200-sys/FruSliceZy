@@ -26,12 +26,10 @@
 | TC22 | Sound effects | Cut fruit/hit bomb | Correct sound plays |
 | TC23 | Multiple objects | Spawn several objects | Collision detection remains correct |
 | TC24 | Long session | Play continuously | Game remains stable |
-| TC25 | 3D scene renders | Start the game | Ursina window opens and 3D arena is visible |
-| TC26 | Fruit model loads | Start gameplay | 3D fruit models are rendered and launched |
-| TC27 | Fruit split | Cut a fruit | Fruit is replaced by two sliced halves |
-| TC28 | Slash trail | Move sword quickly | Trail is visible behind the sword |
-| TC29 | 3D collision | Slash through 3D object | Hit is registered only for fast movement |
-| TC30 | Missing model | Remove a model file | Game reports an error without crashing |
+| TC25 | Browser build | Run `npm run build` | Browser bundle is generated successfully |
+| TC26 | Backend starts | Run `python main.py` | Python WebSocket backend listens on port 8765 |
+| TC27 | Message relay | Connect two WebSocket clients | A valid JSON message reaches the other client |
+| TC28 | Invalid JSON | Send malformed WebSocket data | Sender receives an error without server crash |
 
 ## Execution Status
 
@@ -40,7 +38,7 @@ prototype currently provides the practical path for TC09-TC16, TC22, and
 parts of TC23-TC24 using mouse or touch input. TC01 is partially available
 through the Expo home screen.
 
-TC02-TC08, TC17-TC21, and TC25-TC30 depend on mobile sensors, persistence,
-LAN protocol handling, or a complete Python 3D runtime and are currently
+TC02-TC08, TC17-TC21, and TC26-TC28 depend on mobile sensors, persistence,
+LAN protocol handling, or client integration and are currently
 planned, blocked, or not implemented. Add an execution result and environment
 to this table when those capabilities are delivered.

@@ -94,8 +94,8 @@ The highest-priority unfinished work is:
 1. Implement Expo sensor subscriptions, calibration, and controller UI.
 2. Define and validate the motion WebSocket protocol.
 3. Bind the Python server for safe LAN use and connect motion to the sword.
-4. Repair missing Python modules and complete the desktop Ursina runtime.
-5. Add real fruit/bomb assets, persistence, dynamic difficulty, and automated
+4. Keep the Python backend focused on validated relay and connection handling.
+5. Add persistence, dynamic difficulty, and automated
 	mobile/protocol/end-to-end tests.
 
 Optional future work includes power-ups, additional game modes, profiles,

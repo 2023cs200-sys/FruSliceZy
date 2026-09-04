@@ -98,11 +98,8 @@ export const MainMenu = ({ onNavigate, bestScore }) => {
           className="relative"
         >
           <h1 className="font-arcade text-5xl sm:text-7xl md:text-8xl tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-orange-400 to-red-600 arcade-title-shadow">
-            MOTION FRUIT
+            FruSliceZy
           </h1>
-          <h2 className="font-arcade text-4xl sm:text-6xl md:text-7xl tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-amber-300 to-amber-600 -mt-2 sm:-mt-4 arcade-gold-shadow">
-            CUTTER
-          </h2>
           <div className="absolute -inset-x-6 top-1/2 h-[3px] bg-gradient-to-r from-transparent via-white to-transparent shadow-[0_0_12px_#fff] -rotate-3 pointer-events-none opacity-80" />
         </motion.div>
 

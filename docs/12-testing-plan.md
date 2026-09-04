@@ -99,10 +99,9 @@ The project is considered successful when:
 
 ## Coverage Status
 
-The repository contains Python tests for collision, fruit geometry, sliced
-fruit, particles, sword trails, scoring, combos, and integration concepts.
-The suite currently references missing Python modules, so it is not evidence
-of a passing end-to-end build.
+The previous Python game tests were removed with the Ursina game modules. The
+current backend and browser/mobile integration do not yet have an automated
+test suite.
 
 There are currently no automated mobile sensor tests, WebSocket protocol
 tests, persistence tests, or phone-to-browser integration tests. Browser

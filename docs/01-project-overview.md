@@ -8,9 +8,8 @@ the browser as the game host; the player moves the smartphone like a sword,
 while the phone's accelerometer and gyroscope detect movement and rotation.
 
 The detected motion will be transmitted over a local Wi-Fi network to the
-browser game. The browser converts the received motion into a virtual sword
-slash. The Python/Ursina project is retained as an optional 3D experiment,
-not as a required part of the production game.
+Python WebSocket backend. The backend relays controller messages to the
+browser game, which converts them into virtual sword slashes.
 
 ## 2. Project Goal
 
@@ -49,12 +48,10 @@ The main goal is to create an interactive game that combines mobile sensor techn
 - 2D canvas rendering
 - Mouse/touch input, with phone motion planned
 
-### Optional Python Experiment
+### Python Backend
 - Python
-- Ursina engine (built on Panda3D)
 - WebSocket server
-- 3D models (`.obj`, `.glb`/`.gltf`) and textures
-- JSON-based local data storage
+- Message relay between the phone and browser
 
 ## 5. Target Platform
 
@@ -77,5 +74,5 @@ The Expo app in `mobile-controller` is a routed shell. Its connection,
 controller, sensor, calibration, and WebSocket modules are not implemented.
 The Python project contains game logic, tests, and a WebSocket server
 foundation, but it is not an end-to-end desktop game and has missing module
-imports. The phone-to-browser flow is the selected target design. The
-Python/Ursina flow is optional and is no longer the primary target.
+imports. The phone-to-browser flow through the Python WebSocket backend is the
+selected target design. Ursina and Python 3D rendering are not required.

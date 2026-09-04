@@ -15,12 +15,13 @@ The challenge is to accurately detect meaningful sword-like movements, transmit 
 ## 3. Proposed Solution
 
 FruSliceZy proposes a React Native mobile application as a wireless motion
-controller and a React/Vite browser application as the game engine and UI. A
-Python/Ursina 3D version is optional experimentation, not the primary product.
+controller, a Python WebSocket backend, and a React/Vite browser application as
+the game engine and UI. A Python 3D engine is not required.
 
-The smartphone will collect motion data and send it to the browser game through
-a local Wi-Fi WebSocket connection. The browser will process the data, render
-the game, and generate virtual sword slashes.
+The smartphone will collect motion data and send it to a Python WebSocket
+backend through local Wi-Fi. The backend will relay messages to the browser,
+which will process the data, render the game, and generate virtual sword
+slashes.
 
 ## 4. Expected Outcome
 

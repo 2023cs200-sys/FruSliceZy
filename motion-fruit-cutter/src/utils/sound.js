@@ -1,8 +1,3 @@
-/**
- * Web Audio API procedural sound synthesizer for Motion Fruit Cutter
- * Zero external asset dependencies - instant, responsive, and arcade-authentic!
- */
-
 class SoundSystem {
   constructor() {
     this.ctx = null;

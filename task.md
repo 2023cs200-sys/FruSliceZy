@@ -10,9 +10,7 @@ specification.
 - [x] Add fruit splitting visuals, particles, sound, combos, bombs, pause,
       game-over, settings, and session high scores.
 - [x] Create the Expo Router mobile-controller shell.
-- [x] Create Python game, scoring, collision, effects, and WebSocket
-      foundations.
-- [x] Add Python tests for the available game-logic areas.
+- [x] Create a Python WebSocket backend for controller message relay.
 
 ## In Progress
 
@@ -23,8 +21,8 @@ specification.
 
 ## Planned
 
-- [ ] Host a browser-facing WebSocket endpoint on the laptop.
-- [ ] Keep Python/Ursina as an optional 3D experiment, or archive it later.
+- [x] Host a Python WebSocket endpoint on the laptop.
+- [ ] Keep the Python WebSocket backend small and focused on message relay.
 - [ ] Implement persistent high scores and settings.
 - [ ] Implement dynamic difficulty in the browser game.
 - [ ] Add mobile, protocol, persistence, and end-to-end tests.
@@ -49,7 +47,7 @@ npm install
 npm start
 ```
 
-Optional Python/Ursina experiment:
+Python WebSocket backend:
 
 ```powershell
 cd python-game
@@ -60,5 +58,5 @@ python main.py
 ```
 
 The browser prototype is the primary game. The mobile command starts the
-controller foundation, while the Python command starts an optional legacy
-experiment; neither currently provides end-to-end phone control.
+controller foundation, while the Python command starts the backend. The
+mobile/browser client integration is still incomplete.

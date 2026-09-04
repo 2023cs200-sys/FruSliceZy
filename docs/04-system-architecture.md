@@ -8,8 +8,8 @@ The selected system consists of two main applications:
 2. Browser Game
 
 The applications will communicate through a local Wi-Fi network using
-WebSockets. The Python/Ursina project is optional and outside this primary
-architecture.
+WebSockets through a Python backend. The browser owns the game and UI; Python
+only relays messages.
 
 ## 2. Architecture
 
@@ -34,7 +34,7 @@ architecture.
 +-------------+---------------+
 |          Laptop             |
 |                             |
-|  Browser WebSocket Handler  |
+|  Python WebSocket Backend   |
 |             |               |
 |             v               |
 |  Motion Mapper              |
@@ -65,7 +65,7 @@ Motion Processing
       ↓
 JSON WebSocket Message
       ↓
-Browser WebSocket Handler
+Python WebSocket Backend
       ↓
 Motion Mapper
       ↓
@@ -80,9 +80,10 @@ Game Result
 
 ## 4. Network Model
 
-The smartphone will act as the WebSocket client and the browser game will act
-as the host and game runtime. The current browser prototype still uses
-mouse/touch input only; this browser-facing connection is planned.
+The smartphone and browser are WebSocket clients of the Python backend. The
+backend listens on `0.0.0.0:8765` and relays valid JSON messages. The current
+browser prototype still uses mouse/touch input only; client integration is
+planned.
 
 Both devices must be connected to the same local network.
 
@@ -96,6 +97,6 @@ React application -> canvas game loop -> pointer collision
                   -> fruit/bomb effects -> score, combo, and HUD
 ```
 
-The optional Python server accepts a WebSocket on `ws://localhost:8765`, but it
-is not used by the primary browser architecture. It does not yet receive
-phone motion, bind to a LAN interface, or run the Ursina desktop game loop.
+The Python backend accepts connections on `ws://0.0.0.0:8765` and does not run
+an Ursina desktop game loop. It validates message shape and relays messages;
+the browser remains responsible for game state and rendering.

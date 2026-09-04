@@ -5,9 +5,9 @@
 The mobile controller and browser game will communicate using WebSockets over
 a local Wi-Fi network.
 
-The mobile application will be the client. The browser game will be the host
-and game runtime. The Python server is optional and not part of the selected
-production path.
+The mobile application and browser game will be clients of the Python
+WebSocket backend. The backend relays messages and does not own game state or
+rendering.
 
 ## 2. Connection
 
@@ -19,8 +19,8 @@ Example:
 ws://192.168.1.10:8765
 ```
 
-The browser host endpoint and port will be configured as part of the mobile
-integration work.
+The backend listens on `0.0.0.0:8765`. Clients on the same network connect to
+`ws://<LAPTOP_IP>:8765`.
 
 ## 3. Message Format
 
@@ -109,9 +109,9 @@ The protocol should prioritize:
 - Simple parsing
 - Reliable connection handling
 
-## Legacy Python Contract
+## Python Backend Contract
 
-The optional Python server is hardcoded to `ws://localhost:8765`; it does not use the
+The Python backend listens on `ws://0.0.0.0:8765`; it does not use the
 documented configurable laptop IP/port flow. For each connected client it
 sends messages shaped like:
 
@@ -136,7 +136,5 @@ production network contract.
 ## Selected Browser Protocol
 
 The browser prototype currently has no WebSocket connection. The production
-protocol should connect `mobile-controller` directly to
-`motion-fruit-cutter`, with motion messages driving the existing browser sword
-and state remaining inside the React game. The message shapes above are a
-starting proposal and require validation before implementation.
+clients should connect to the Python backend, with motion messages relayed to
+the browser and game state remaining inside the React application.

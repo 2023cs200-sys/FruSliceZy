@@ -1,8 +1,3 @@
-/**
- * Motion Fruit Cutter — Fruit Ninja-Inspired Arcade Game UI
- * Visual reference & playable interface for Python + WebSocket server
- */
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { INITIAL_HIGH_SCORES } from './data/fruits.js';

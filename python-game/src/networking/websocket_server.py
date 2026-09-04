@@ -1,54 +1,47 @@
 import asyncio
 import json
+
 import websockets
-from src.game.game import Game
 
-async def handler(websocket, path=None):
-    game = Game()
-    game.start_game()
-    
-    async def game_loop():
-        # 60 FPS tick
-        dt = 1/60
-        while True:
-            # Add time dt logic if needed
-            game.update(dt)
-            state = {
-                "score": game.score_manager.score,
-                "combo": game.combo_manager.combo,
-                "time_left": game.time_left,
-                "fruits": [
-                    {
-                        "id": id(f),
-                        "type": f.fruit_type,
-                        "x": f.position.x,
-                        "y": f.position.y,
-                        "cut": f.cut
-                    } for f in game.object_manager.fruits
-                ]
-            }
-            try:
-                await websocket.send(json.dumps({"type": "state", "state": state}))
-            except websockets.exceptions.ConnectionClosed:
-                break
-            await asyncio.sleep(dt)
 
-    async def receive_loop():
+CLIENTS = set()
+
+
+async def broadcast(sender, message):
+    """Forward a valid controller/game message to the other connected peer."""
+    disconnected = set()
+    for client in CLIENTS - {sender}:
         try:
-            async for message in websocket:
-                data = json.loads(message)
-                if data["type"] == "slice":
-                    # handle slice collision
-                    pass
+            await client.send(message)
         except websockets.exceptions.ConnectionClosed:
-            pass
+            disconnected.add(client)
+    CLIENTS.difference_update(disconnected)
 
-    await asyncio.gather(game_loop(), receive_loop())
+
+async def handler(websocket):
+    CLIENTS.add(websocket)
+    try:
+        async for message in websocket:
+            try:
+                data = json.loads(message)
+            except json.JSONDecodeError:
+                await websocket.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
+                continue
+
+            if not isinstance(data, dict) or not isinstance(data.get("type"), str):
+                await websocket.send(json.dumps({"type": "error", "message": "Message type is required"}))
+                continue
+
+            await broadcast(websocket, message)
+    except websockets.exceptions.ConnectionClosed:
+        pass
+    finally:
+        CLIENTS.discard(websocket)
 
 async def main():
-    print("WebSocket server running on ws://localhost:8765")
-    async with websockets.serve(handler, "localhost", 8765):
-        await asyncio.Future()  # run forever
+    print("Python WebSocket backend running on ws://0.0.0.0:8765")
+    async with websockets.serve(handler, "0.0.0.0", 8765):
+        await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
