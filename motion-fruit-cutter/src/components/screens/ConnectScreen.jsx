@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Smartphone, Wifi, ArrowLeft, CheckCircle2, AlertCircle, RefreshCw, Compass, Sliders } from 'lucide-react';
 import { motion } from 'motion/react';
 import { sound } from '../../utils/sound.js';
 
-export const ConnectScreen = ({ controller, onUpdateController, onNavigate }) => {
+export const ConnectScreen = ({ 
+  controller, 
+  onUpdateController, 
+  onNavigate, 
+  onConnect, 
+  onDisconnect 
+}) => {
   const [ip, setIp] = useState(controller.ipAddress || '192.168.1.10');
   const [port, setPort] = useState(controller.port || '8765');
   const [isSimulatingTilt, setIsSimulatingTilt] = useState(false);
 
+  useEffect(() => {
+    onUpdateController({ ipAddress: ip, port: port });
+  }, [ip, port, onUpdateController]);
+
   const handleConnectToggle = () => {
     sound.playButton();
     if (controller.status === 'CONNECTED') {
-      onUpdateController({ status: 'DISCONNECTED' });
+      onDisconnect?.();
     } else {
-      onUpdateController({ status: 'CONNECTING' });
-      setTimeout(() => {
-        onUpdateController({ status: 'CONNECTED', ipAddress: ip, port: port, gyro: { pitch: 12, roll: -8, yaw: 4 } });
-        sound.playCombo(3);
-      }, 1200);
+      onUpdateController({ status: 'CONNECTING', ipAddress: ip, port: port });
+      onConnect?.();
     }
   };
 
