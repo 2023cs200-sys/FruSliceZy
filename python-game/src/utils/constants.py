@@ -1,3 +1,12 @@
+from pathlib import Path
+
+ASSET_ROOT = Path(__file__).resolve().parents[2] / "assets"
+
+
+def asset(*parts):
+    return ASSET_ROOT.joinpath(*parts)
+
+
 FRUIT_TYPES = {
     "apple": {
         "points": 10,

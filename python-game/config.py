@@ -49,6 +49,21 @@ class SpawnConfig:
 
 
 @dataclass(frozen=True)
+class BombConfig:
+    chance: float = 0.12
+    penalty: int = 50
+    min_spawn_delay: float = 5.0
+
+
+@dataclass(frozen=True)
+class EffectsConfig:
+    half_lifetime: float = 1.6
+    half_push: float = 2.5
+    shake_intensity: float = 0.6
+    flash_lifetime: float = 0.4
+
+
+@dataclass(frozen=True)
 class RoundConfig:
     duration: float = 60.0
     combo_window: float = 1.2
@@ -69,6 +84,8 @@ class Config:
     sword: SwordConfig = field(default_factory=SwordConfig)
     spawn: SpawnConfig = field(default_factory=SpawnConfig)
     round: RoundConfig = field(default_factory=RoundConfig)
+    bombs: BombConfig = field(default_factory=BombConfig)
+    effects: EffectsConfig = field(default_factory=EffectsConfig)
     network: NetworkConfig = field(default_factory=NetworkConfig)
 
 
