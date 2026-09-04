@@ -1,6 +1,7 @@
+from src.utils.vector import Vector2
 from math import atan2, degrees
 
-from ursina import Entity, Vec3, color, destroy, time
+
 
 from config import config
 
@@ -42,7 +43,7 @@ class SlashTrail:
         speed_factor = min(speed / _MAX_SPEED_REF, 1.0)
         glow_width = _GLOW_WIDTH * (0.35 + 0.65 * speed_factor)
         core_width = _CORE_WIDTH * (0.35 + 0.65 * speed_factor)
-        mid = Vec3(
+        mid = Vector2(
             (start.x + end.x) / 2,
             (start.y + end.y) / 2,
             config.play_area.plane_z - 0.2,
@@ -59,7 +60,7 @@ class SlashTrail:
             model="quad",
             scale=(length, core_width),
             color=color.rgba32(*_CORE_COLOR, 230),
-            position=mid + Vec3(0, 0, -0.05),
+            position=mid + Vector2(0, 0, -0.05),
             rotation_z=angle,
             double_sided=True,
         )

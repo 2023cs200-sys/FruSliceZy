@@ -1,0 +1,6 @@
+{
+  "name": "Motion Fruit Cutter",
+  "description": "Fruit Ninja-inspired 3D arcade fruit-slicing game UI, HUD, menus, and interactive motion blade simulation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

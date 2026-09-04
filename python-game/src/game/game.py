@@ -1,4 +1,4 @@
-from ursina import application, camera, color, destroy, time, window
+
 
 from config import config
 from src.collision.collision_detector import check_sword_hits

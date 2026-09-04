@@ -1,7 +1,8 @@
+from src.utils.vector import Vector2
 import random
 from pathlib import Path
 
-from ursina import Entity, Vec3, color, time
+
 
 from config import config
 from src.objects.fruit_meshes import FRUIT_GEO
@@ -26,7 +27,7 @@ def _mesh_extent(inner):
     return extent if extent > 0.001 else None
 
 
-class Fruit(Entity):
+class Fruit:
     def __init__(self, fruit_type):
         info = FRUIT_TYPES[fruit_type]
         builder = FRUIT_GEO.get(fruit_type, (None, None))[0] if info.get("builtin") else None
@@ -34,13 +35,13 @@ class Fruit(Entity):
         if model:
             # Route A: real asset file on disk wins over procedural geometry
             size = info.get("model_scale", info["scale"])
-            super().__init__()
+            pass
             inner = Entity(parent=self, model=model, scale=size)
             if inner.find_all_textures().get_num_textures() == 0:
                 inner.color = color.rgb32(*info["color"])
             bounds = inner.bounds
             if bounds is not None:
-                inner.position = Vec3(
+                inner.position = Vector2(
                     -bounds.center.x * size,
                     -bounds.center.y * size,
                     -bounds.center.z * size,
@@ -51,7 +52,7 @@ class Fruit(Entity):
         elif builder:
             # Route B: procedural whole-fruit builder
             size = info.get("model_scale", info["scale"])
-            super().__init__()
+            pass
             inner = builder()
             inner.parent = self
             inner.scale = size
@@ -75,12 +76,12 @@ class Fruit(Entity):
         self.radius = max_dim * 0.55
         self.cut = False
         self.fell_out = False
-        self.position = Vec3(
+        self.position = Vector2(
             random_range(play_area.min_x + 2, play_area.max_x - 2),
             play_area.spawn_y,
             play_area.plane_z,
         )
-        self.velocity = Vec3(
+        self.velocity = Vector2(
             random_range(
                 -config.physics.horizontal_drift_max,
                 config.physics.horizontal_drift_max,
@@ -96,7 +97,7 @@ class Fruit(Entity):
     def update(self):
         if self.cut:
             return
-        self.velocity += Vec3(0, -config.physics.gravity * time.dt, 0)
+        self.velocity += Vector2(0, -config.physics.gravity * time.dt, 0)
         self.position += self.velocity * time.dt
         self.rotation_x += self.spin * time.dt
         self.rotation_y += self.spin * 0.6 * time.dt

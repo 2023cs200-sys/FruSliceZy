@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-arcade {
+    font-family: 'Luckiest Guy', cursive, -apple-system, sans-serif;
+  }
+  .font-bungee {
+    font-family: 'Bungee', cursive, -apple-system, sans-serif;
+  }
+  .arcade-text-shadow {
+    text-shadow: 
+      0 2px 0 #000,
+      0 4px 0 rgba(0, 0, 0, 0.9),
+      0 6px 12px rgba(0, 0, 0, 0.8);
+  }
+  .arcade-title-shadow {
+    text-shadow: 
+      0 3px 0 #7c2d12,
+      0 6px 0 #431407,
+      0 8px 1px rgba(0, 0, 0, 0.9),
+      0 12px 24px rgba(234, 88, 12, 0.6);
+  }
+  .arcade-gold-shadow {
+    text-shadow: 
+      0 3px 0 #92400e,
+      0 6px 0 #78350f,
+      0 8px 16px rgba(245, 158, 11, 0.7);
+  }
+  .arcade-combo-shadow {
+    text-shadow: 
+      0 2px 0 #b91c1c,
+      0 4px 0 #7f1d1d,
+      0 0 20px rgba(255, 62, 62, 0.9);
+  }
+  .arcade-neon-glow {
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7)) drop-shadow(0 0 25px rgba(56, 189, 248, 0.4));
+  }
+  .arcade-fruit-glow {
+    filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.5));
+  }
+  .vibrant-score-shadow {
+    filter: drop-shadow(0 0 15px rgba(255, 204, 0, 0.55));
+  }
+  .vibrant-combo-banner {
+    background: linear-gradient(90deg, transparent 0%, rgba(220, 38, 38, 0.85) 50%, transparent 100%);
+  }
+}
+
+/* Vibrant Palette radial dark background and dot grid */
+.vibrant-bg {
+  background: radial-gradient(circle at center, #1a1c26 0%, #0c0d12 100%);
+}
+
+.vibrant-dot-grid {
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.6));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 28px rgba(239, 68, 68, 0.9));
+    transform: scale(1.03);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
