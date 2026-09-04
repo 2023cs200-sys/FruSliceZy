@@ -2,9 +2,16 @@ from ursina import application, camera, color, destroy, time, window
 
 from config import config
 from src.collision.collision_detector import check_sword_hits
-from src.effects.particles import juice_burst, score_popup
+from src.effects.particles import (
+    ScreenFlash,
+    fruit_chunks,
+    juice_burst,
+    score_popup,
+    slash_flash,
+)
 from src.game.game_state import GameState
 from src.objects.object_manager import ObjectManager
+from src.objects.sliced_fruit import slash_direction, spawn_halves
 from src.objects.spawner import Spawner
 from src.player.player import Player
 from src.scoring.combo_manager import ComboManager
@@ -31,6 +38,7 @@ class Game:
         self.main_menu = MainMenu()
         self.game_over_screen = GameOverScreen()
         self.pause_menu = PauseMenu()
+        self.screen_flash = ScreenFlash()
         self.time_left = config.round.duration
 
     @property
@@ -97,6 +105,7 @@ class Game:
             self._cut_fruit(fruit)
         self.combo_manager.update(now)
         self.hud.set_combo(self.combo_manager.combo)
+        self.screen_flash.update()
         self.time_left -= time.dt
         self.hud.set_timer(self.time_left)
         if self.time_left <= 0:
@@ -104,11 +113,18 @@ class Game:
 
     def _cut_fruit(self, fruit):
         fruit.cut = True
+        slash = slash_direction(self.player.sword)
         combo = self.combo_manager.register_hit(time.time())
         earned = self.score_manager.add_hit(fruit.points, combo)
         self.hud.set_score(self.score_manager.score)
-        juice_burst(fruit.position, FRUIT_TYPES[fruit.fruit_type]["color"])
+        info = FRUIT_TYPES[fruit.fruit_type]
+        juice_burst(fruit.position, info["juice"])
+        fruit_chunks(fruit.position, info["color"], direction=slash)
+        slash_flash(fruit.position, slash)
+        if combo >= 3:
+            self.screen_flash.trigger(intensity=0.35, rgb=(255, 200, 60))
         score_popup(fruit.position, f"+{earned}")
+        spawn_halves(fruit, self.player.sword)
         self.object_manager.remove(fruit)
 
     def handle_input(self, key):

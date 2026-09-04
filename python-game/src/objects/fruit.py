@@ -4,7 +4,7 @@ from pathlib import Path
 from ursina import Entity, Vec3, color, time
 
 from config import config
-from src.objects.procedural_apple import BUILTIN_BUILDERS
+from src.objects.fruit_meshes import FRUIT_GEO
 from src.utils.constants import FRUIT_TYPES
 from src.utils.helpers import random_range
 
@@ -16,19 +16,23 @@ def _resolve_model(info):
     return None
 
 
+def _mesh_extent(inner):
+    """Largest world-space dimension of a procedural builder's geometry."""
+    bounds = inner.bounds
+    if bounds is None:
+        return None
+    size = bounds.size
+    extent = max(size.x, size.y, size.z)
+    return extent if extent > 0.001 else None
+
+
 class Fruit(Entity):
     def __init__(self, fruit_type):
         info = FRUIT_TYPES[fruit_type]
-        builder = BUILTIN_BUILDERS.get(info.get("builtin"))
-        model = None if builder else _resolve_model(info)
-        if builder:
-            size = info.get("model_scale", info["scale"])
-            super().__init__()
-            inner = builder()
-            inner.parent = self
-            inner.scale = size
-            max_dim = size
-        elif model:
+        builder = FRUIT_GEO.get(fruit_type, (None, None))[0] if info.get("builtin") else None
+        model = _resolve_model(info)
+        if model:
+            # Route A: real asset file on disk wins over procedural geometry
             size = info.get("model_scale", info["scale"])
             super().__init__()
             inner = Entity(parent=self, model=model, scale=size)
@@ -44,6 +48,14 @@ class Fruit(Entity):
                 max_dim = max(bounds.size.x, bounds.size.y, bounds.size.z)
             else:
                 max_dim = size
+        elif builder:
+            # Route B: procedural whole-fruit builder
+            size = info.get("model_scale", info["scale"])
+            super().__init__()
+            inner = builder()
+            inner.parent = self
+            inner.scale = size
+            max_dim = _mesh_extent(inner) or size
         else:
             shape_scale = info.get("shape_scale", (1, 1, 1))
             size = info["scale"]
