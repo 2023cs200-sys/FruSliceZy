@@ -193,3 +193,16 @@ The 3D game should be built incrementally:
 - Bombs
 - High scores
 - Pause menu and settings
+
+## Current Status
+
+This is a target design for the planned Ursina version. The currently playable
+application is the 2D canvas prototype in `motion-fruit-cutter`, not a 3D
+scene. The Python repository has partial sword, collision, scoring, and sliced
+fruit foundations, but the documented `fruit_geometry.py` and
+`fruit_meshes.py` modules are absent, the asset folders contain placeholder
+`.gitkeep` files, and `main.py` only starts the WebSocket server.
+
+The scene layout, model loading, 3D motion mapping, and asset organization
+should therefore be treated as implementation guidance rather than current
+runtime behavior.

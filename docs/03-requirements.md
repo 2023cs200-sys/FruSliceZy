@@ -14,15 +14,15 @@
 - The application shall send motion data to the laptop.
 - The application shall show connection status.
 
-### Laptop Game
+### Browser Game
 
 - The game shall start a WebSocket server.
 - The game shall accept a controller connection.
 - The game shall receive motion messages.
-- The game shall render a 3D scene using the Ursina engine.
-- The game shall map motion data to 3D sword movement.
-- The game shall spawn 3D fruit and bomb models.
-- The game shall detect sword/object collisions in 3D space.
+- The game shall render the playable scene in the browser.
+- The game shall map motion data to browser sword movement.
+- The game shall spawn fruit and bomb visuals in the browser.
+- The game shall detect sword/object collisions in the browser.
 - The game shall split a cut fruit into two sliced pieces.
 - The game shall increase the player's score when fruits are cut.
 - The game shall maintain combo information.
@@ -64,6 +64,18 @@
 - Node.js and npm
 - Expo CLI/Expo development environment
 - Expo Go
-- Python 3
-- Ursina engine
-- WebSocket Python library
+- Python 3 and Ursina are optional and not required for the primary product.
+- A browser-compatible WebSocket host is required for future phone control.
+
+## Requirement Status
+
+The requirements describe the target system, not a completed implementation.
+
+| Area | Current status |
+| --- | --- |
+| Browser fruit-cutting prototype | Implemented as a React/Vite 2D canvas game with mouse/touch input |
+| Mobile routes and Expo shell | Partially implemented; connection and controller screens are placeholders |
+| Mobile sensors, calibration, and WebSocket client | Planned; source modules are empty |
+| Python game modules and unit tests | Partially implemented; missing imports currently block a complete runtime/test suite |
+| Python WebSocket state server | Partially implemented on `localhost:8765`; incoming `slice` handling is a no-op |
+| LAN phone control, 3D runtime, persistence, and dynamic difficulty | Not implemented |

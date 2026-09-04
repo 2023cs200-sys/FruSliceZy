@@ -87,3 +87,10 @@ Testing should be performed with:
 - Small movements
 - Intentional sword slashes
 - Phone rotation without a slash
+
+## Implementation Status
+
+This is the intended motion-processing design. The mobile sensor modules and
+`useMotionSensors` hook currently contain no implementation, so no
+accelerometer or gyroscope readings are processed and no slash events are
+generated from a phone. The browser prototype uses pointer movement instead.

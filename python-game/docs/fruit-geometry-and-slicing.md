@@ -391,3 +391,16 @@ src/objects/
 ├── fruit.py            ← loader chain (file → builtin → sphere), collider sizing
 └── procedural_apple.py ← (legacy Phase 1 apple, superseded by fruit_meshes)
 ```
+
+## Repository Status
+
+This document is a proposed geometry and slicing specification, not a map of
+the current implementation. The referenced `fruit_geometry.py`,
+`fruit_meshes.py`, and `procedural_apple.py` files are not present in the
+repository. The current `sliced_fruit.py` contains partial slicing concepts,
+but the geometry tests also reference missing modules and cannot be treated
+as proof of a complete implementation.
+
+The browser prototype uses procedural 2D canvas fruit rendering instead. The
+3D mesh, cap, ribbon, asset-loader, and invariant details above should be
+implemented only as part of the future Ursina runtime.

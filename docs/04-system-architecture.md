@@ -2,12 +2,14 @@
 
 ## 1. Overview
 
-The system consists of two main applications:
+The selected system consists of two main applications:
 
 1. Mobile Controller
-2. Laptop Game
+2. Browser Game
 
-The applications communicate through a local Wi-Fi network using WebSockets.
+The applications will communicate through a local Wi-Fi network using
+WebSockets. The Python/Ursina project is optional and outside this primary
+architecture.
 
 ## 2. Architecture
 
@@ -32,13 +34,13 @@ The applications communicate through a local Wi-Fi network using WebSockets.
 +-------------+---------------+
 |          Laptop             |
 |                             |
-|  Python WebSocket Server    |
+|  Browser WebSocket Handler  |
 |             |               |
 |             v               |
 |  Motion Mapper              |
 |             |               |
 |             v               |
-|     Ursina 3D Game          |
+|    React Canvas Game        |
 |             |               |
 |    +--------+--------+      |
 |    |        |        |      |
@@ -63,13 +65,13 @@ Motion Processing
       ↓
 JSON WebSocket Message
       ↓
-Python Server
+Browser WebSocket Handler
       ↓
 Motion Mapper
       ↓
-3D Sword Movement
+Canvas Sword Movement
       ↓
-Collision Detection (3D)
+Canvas Collision Detection
       ↓
 Slice / Score / Combo
       ↓
@@ -78,6 +80,22 @@ Game Result
 
 ## 4. Network Model
 
-The smartphone acts as the WebSocket client and the laptop acts as the WebSocket server.
+The smartphone will act as the WebSocket client and the browser game will act
+as the host and game runtime. The current browser prototype still uses
+mouse/touch input only; this browser-facing connection is planned.
 
 Both devices must be connected to the same local network.
+
+## Current Versus Target Architecture
+
+The diagram above is the target phone-controlled architecture. The current
+browser architecture is simpler:
+
+```text
+React application -> canvas game loop -> pointer collision
+                  -> fruit/bomb effects -> score, combo, and HUD
+```
+
+The optional Python server accepts a WebSocket on `ws://localhost:8765`, but it
+is not used by the primary browser architecture. It does not yet receive
+phone motion, bind to a LAN interface, or run the Ursina desktop game loop.

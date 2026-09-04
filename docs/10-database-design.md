@@ -83,3 +83,14 @@ The application should:
 - Sort scores from highest to lowest.
 - Keep a configurable number of top scores.
 - Save settings when they change.
+
+## Current Persistence Status
+
+`python-game/data/high_scores.json` and `python-game/data/settings.json`
+exist, but they are empty and no load/save implementation currently uses
+them. The browser prototype keeps high scores and settings in React state for
+the current page session only; it does not use `localStorage` or a database.
+
+The JSON examples above are a future storage contract. Persistence should be
+implemented only after the runtime ownership of scores and settings is
+settled.

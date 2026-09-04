@@ -96,3 +96,16 @@ The project is considered successful when:
 - Scores and combos work.
 - Difficulty increases.
 - The game remains playable without crashes.
+
+## Coverage Status
+
+The repository contains Python tests for collision, fruit geometry, sliced
+fruit, particles, sword trails, scoring, combos, and integration concepts.
+The suite currently references missing Python modules, so it is not evidence
+of a passing end-to-end build.
+
+There are currently no automated mobile sensor tests, WebSocket protocol
+tests, persistence tests, or phone-to-browser integration tests. Browser
+behavior is primarily exercised manually through the Vite prototype. These
+gaps must be closed before the acceptance criteria above can be considered
+complete.

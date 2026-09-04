@@ -2,9 +2,12 @@
 
 ## 1. Overview
 
-The mobile controller and laptop game communicate using WebSockets over a local Wi-Fi network.
+The mobile controller and browser game will communicate using WebSockets over
+a local Wi-Fi network.
 
-The mobile application is the client. The Python game is the server.
+The mobile application will be the client. The browser game will be the host
+and game runtime. The Python server is optional and not part of the selected
+production path.
 
 ## 2. Connection
 
@@ -16,7 +19,8 @@ Example:
 ws://192.168.1.10:8765
 ```
 
-The port number can be configured in the Python game settings.
+The browser host endpoint and port will be configured as part of the mobile
+integration work.
 
 ## 3. Message Format
 
@@ -104,3 +108,35 @@ The protocol should prioritize:
 - Small message size
 - Simple parsing
 - Reliable connection handling
+
+## Legacy Python Contract
+
+The optional Python server is hardcoded to `ws://localhost:8765`; it does not use the
+documented configurable laptop IP/port flow. For each connected client it
+sends messages shaped like:
+
+```json
+{
+  "type": "state",
+  "state": {
+    "score": 0,
+    "combo": 0,
+    "time_left": 60.0,
+    "fruits": []
+  }
+}
+```
+
+Incoming JSON is inspected for `type`. Only `slice` is recognized, and its
+handler is currently a no-op. `motion`, `calibrate`, `ping`, and `status` are
+planned messages, not implemented messages. Malformed JSON and missing fields
+are not yet validated robustly, so this protocol must not be treated as a
+production network contract.
+
+## Selected Browser Protocol
+
+The browser prototype currently has no WebSocket connection. The production
+protocol should connect `mobile-controller` directly to
+`motion-fruit-cutter`, with motion messages driving the existing browser sword
+and state remaining inside the React game. The message shapes above are a
+starting proposal and require validation before implementation.

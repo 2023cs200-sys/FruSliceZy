@@ -126,3 +126,23 @@ After the controller shows a successful connection:
 3. Cut fruits.
 4. Avoid bombs.
 5. Build combos.
+
+## Current Installation Scope
+
+The browser prototype is the supported runnable experience:
+
+```powershell
+cd motion-fruit-cutter
+npm install
+npm run dev
+```
+
+The mobile app currently launches its Expo routes, but its connection and
+controller screens are placeholders. Do not expect the phone to connect to
+the Python server yet.
+
+The Python server can be started with the commands above, but it binds to
+`localhost:8765`, not the laptop's LAN address. Its mobile protocol and
+complete Ursina runtime are still under development, so the network and
+calibration steps in this guide describe the target workflow rather than a
+working installation.

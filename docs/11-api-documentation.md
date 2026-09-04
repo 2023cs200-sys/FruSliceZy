@@ -110,3 +110,16 @@ A future version can add a protocol version field:
   "type": "motion"
 }
 ```
+
+## Actual Server Behavior
+
+The current endpoint is hardcoded to `ws://localhost:8765`, not a reachable
+LAN address by default. The server sends periodic `state` messages containing
+`score`, `combo`, `time_left`, and a `fruits` array with each object's `id`,
+`type`, `x`, `y`, and `cut` fields.
+
+The only recognized client message is `{"type":"slice"}`; its handler is
+currently `pass`, so it does not change the game. The `motion`, `calibrate`,
+`ping`, `connection`, `game`, and `error` messages documented above are
+planned API shapes, not implemented API operations. Input validation is also
+incomplete. The phone controller does not currently open this connection.
