@@ -1,6 +1,6 @@
-# Motion Fruit Cutter
+# FruSliceZy
 
-Motion Fruit Cutter is the browser-playable arcade prototype for FruSliceZy.
+FruSliceZy is the browser-playable arcade prototype for FruSliceZy.
 It is the primary game host and presents the game loop and interface that will
 be driven by the mobile motion controller.
 
