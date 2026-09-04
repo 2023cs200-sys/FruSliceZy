@@ -134,3 +134,65 @@ def test_half_lands_below_play_area_and_is_destroyed(app):
     left.update()
     assert left.fell_out  # below despawn line while falling -> gone
     destroy(right)
+
+
+def test_cut_via_game_spawns_halves_then_cleans_up(app):
+    """Integration: a real Game cut produces 2 halves; time removes them.
+
+    Mirrors the spec's verification for Section 3: cut -> 2 halves exist ->
+    later cleaned up. Runs against the actual Game orchestrator, not fakes.
+    """
+    import ursina
+
+    from src.game.game import Game
+    from src.game.game_state import GameState
+
+    ursina.time.dt = 1 / 60
+    game = Game()
+    game.start_game()
+    assert game.state == GameState.PLAYING
+
+    fruit = Fruit("apple")
+    fruit.position = Vec3(0, 0, config.play_area.plane_z)
+    fruit.velocity = Vec3(0, 0, 0)
+    game.object_manager.add(fruit)
+    game.sword = FakeSword(previous_tip=Vec3(-2, 0, 0), tip=Vec3(2, 0, 0))
+
+    # snapshot live entities BEFORE the cut; destroyed entities from earlier
+    # tests still linger in scene.entities and must not pollute the diff
+    from ursina import scene
+
+    alive_before = set(id(e) for e in scene.entities if hasattr(e, "enabled"))
+
+    game.update()  # collision -> _cut_fruit -> spawn_halves
+
+    assert fruit not in game.object_manager.fruits
+    new_entities = [
+        e
+        for e in scene.entities
+        if id(e) not in alive_before and isinstance(e, SlicedHalf)
+    ]
+    assert len(new_entities) == 2
+
+    left = next(h for h in new_entities if h.velocity.y > 0)
+    right = next(h for h in new_entities if h.velocity.y < 0)
+    assert left.velocity.y > 0 and right.velocity.y < 0  # perpendicular split
+
+    # simulate the rest of the half lifetime: both must self-clean
+    frames = int(config.effects.half_lifetime * 60) + 10
+    destroyed = {"left": False, "right": False}
+    for _ in range(frames):
+        for key, half in (("left", left), ("right", right)):
+            if destroyed[key]:
+                continue
+            try:
+                half.update()
+            except Exception as exc:
+                # once destroyed, further update() raises; that's the cleanup
+                assert "destroyed" in str(exc), exc
+                destroyed[key] = True
+    assert destroyed["left"] and destroyed["right"]  # both halves cleaned up
+    game.object_manager.clear()
+    game.player.trail.clear()
+    game.score_manager.reset()
+    game.combo_manager.reset()
