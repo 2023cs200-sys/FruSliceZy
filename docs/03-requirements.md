@@ -64,7 +64,8 @@
 - Node.js and npm
 - Expo CLI/Expo development environment
 - Expo Go
-- Python 3 and Ursina are optional and not required for the primary product.
+- Python 3 is required for the WebSocket backend.
+- Ursina is not required.
 - A browser-compatible WebSocket host is required for future phone control.
 
 ## Requirement Status

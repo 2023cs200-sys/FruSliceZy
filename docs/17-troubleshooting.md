@@ -50,28 +50,19 @@ Possible solutions:
 - Optimize collision detection.
 - Check laptop CPU/GPU usage.
 
-## 6. Ursina / Game Window Does Not Start
+## 6. Python Backend Does Not Start
 
-### Possible Causes
-- Ursina is not installed.
-- Graphics drivers are outdated.
-- OpenGL is not supported by the system.
+Activate the virtual environment and run:
 
-### Solutions
-1. Activate the virtual environment and run `pip install -r requirements.txt`.
-2. Update graphics drivers.
-3. Try running the game on a machine with OpenGL-capable graphics.
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
-## 7. Missing 3D Models or Textures
+The backend requires Python and the `websockets` package. Ursina, 3D assets,
+and graphics drivers are not required.
 
-Check:
-
-- Model files exist in `assets/models/`.
-- File names match the names used in the code.
-- Texture files exist in `assets/textures/`.
-- The `python-game` folder is the working directory when starting the game.
-
-## 8. No Sound
+## 7. No Sound
 
 Check:
 
@@ -80,7 +71,7 @@ Check:
 - Audio is enabled.
 - System volume is not muted.
 
-## 9. Python Dependency Error
+## 8. Python Dependency Error
 
 Activate the virtual environment and run:
 
@@ -88,7 +79,7 @@ Activate the virtual environment and run:
 pip install -r requirements.txt
 ```
 
-## 10. Expo Dependency Error
+## 9. Expo Dependency Error
 
 From `mobile-controller`:
 
@@ -98,25 +89,22 @@ npm install
 
 Then restart the Expo development server.
 
-## 11. Controller Disconnects
+## 10. Controller Disconnects
 
 The game should display a disconnected state. Restart or reconnect the controller if necessary.
 
-## 12. Firewall Issues
+## 11. Firewall Issues
 
 If the phone cannot reach the laptop despite using the correct IP, check whether the Python application or configured WebSocket port is allowed through the firewall.
 
 ## Current Implementation Notes
 
 The phone connection and motion-detection sections describe planned
-functionality. The Expo connection/controller screens are placeholders, and
-the Python server listens only on `localhost:8765`, so a phone on the same
-Wi-Fi network cannot reach it yet.
+functionality. The Expo connection/controller screens are placeholders, while
+the Python backend listens on `0.0.0.0:8765`.
 
-If `python main.py` fails with an import error, check the missing modules under
-`python-game/src/objects` and `python-game/src/ui`; the current repository has
-known incomplete imports. Installing dependencies alone does not resolve
-those source-level blockers.
+If `python main.py` fails, confirm that port `8765` is free and that the
+`websockets` package is installed in the active environment.
 
 For the supported browser path, run commands from `motion-fruit-cutter` and
 use `npm run build` to distinguish application errors from development-server

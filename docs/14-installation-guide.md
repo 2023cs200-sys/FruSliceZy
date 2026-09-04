@@ -9,7 +9,6 @@ Install:
 - Expo development environment
 - Expo Go on an Android smartphone
 - Python 3
-- Ursina game engine (installed with the Python dependencies in step 4)
 - Git
 
 ## 2. Clone the Project
@@ -41,7 +40,7 @@ npx expo start
 
 Open the project using Expo Go on the smartphone.
 
-## 4. Python Game Setup
+## 4. Python WebSocket Backend Setup
 
 Open a second terminal and navigate to:
 
@@ -73,7 +72,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-This installs the Ursina engine, the WebSocket server library, and the other Python dependencies.
+This installs the Python WebSocket backend dependency.
 
 ## 5. Network Setup
 
@@ -97,7 +96,7 @@ From `python-game`:
 python main.py
 ```
 
-The WebSocket server should start on the configured port.
+The backend should start on port `8765` and listen on all network interfaces.
 
 ## 7. Connect the Smartphone
 
@@ -141,8 +140,6 @@ The mobile app currently launches its Expo routes, but its connection and
 controller screens are placeholders. Do not expect the phone to connect to
 the Python server yet.
 
-The Python server can be started with the commands above, but it binds to
-`localhost:8765`, not the laptop's LAN address. Its mobile protocol and
-complete Ursina runtime are still under development, so the network and
-calibration steps in this guide describe the target workflow rather than a
-working installation.
+The Python backend listens on `0.0.0.0:8765` and relays JSON messages between
+the Expo controller and browser. The client integrations and calibration flow
+are still under development.

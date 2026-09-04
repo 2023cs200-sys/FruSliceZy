@@ -65,7 +65,7 @@ python main.py
 ```
 
 The backend relays JSON messages between connected Expo and browser clients.
-It does not render the game and does not require Ursina.
+It does not render the game.
 
 The server listens on all network interfaces at port `8765`. Use the laptop's
 local IP address from the mobile controller, for example
@@ -99,5 +99,4 @@ focused documentation in `docs/`, especially:
 ## Current Status
 
 The browser experience is the primary game. The Expo app's sensor and
-WebSocket integration is still incomplete. Python is the selected backend;
-Ursina and the old Python 3D game modules are no longer required.
+WebSocket integration is still incomplete. Python is the selected backend.

@@ -86,9 +86,8 @@ The application should:
 
 ## Current Persistence Status
 
-`python-game/data/high_scores.json` and `python-game/data/settings.json`
-exist, but they are empty and no load/save implementation currently uses
-them. The browser prototype keeps high scores and settings in React state for
+No backend persistence files are currently used. The browser prototype keeps
+high scores and settings in React state for
 the current page session only; it does not use `localStorage` or a database.
 
 The JSON examples above are a future storage contract. Persistence should be
