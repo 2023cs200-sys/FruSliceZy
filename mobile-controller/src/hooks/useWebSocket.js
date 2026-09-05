@@ -56,6 +56,11 @@ export function useWebSocket(options) {
 
 	useEffect(() => {
 		isMountedRef.current = true;
+		const isValidUrl = url && url !== 'ws://' && !url.includes('//:') && url.replace('ws://', '').includes(':');
+		if (!isValidUrl) {
+			setStatus('disconnected');
+			return;
+		}
 		const manager = new ConnectionManager({
 			url,
 			onMessage: handleMessage,

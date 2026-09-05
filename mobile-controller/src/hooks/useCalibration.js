@@ -1,34 +1,44 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { createCalibrator } from '../sensors/calibration';
 
 export function useCalibration() {
 	const [calibrated, setCalibrated] = useState(false);
 	const [calibrationOffset, setCalibrationOffset] = useState({ pitch: 0, roll: 0, yaw: 0 });
+	const calibratorRef = useRef(null);
 
 	const calibrate = useCallback((accel, gyro) => {
-		const pitch = Math.atan2(accel.x, Math.sqrt(accel.y * accel.y + accel.z * accel.z)) * (180 / Math.PI);
-		const roll = Math.atan2(-accel.y, accel.z) * (180 / Math.PI);
-		const offset = { pitch, roll, yaw: 0 };
-		setCalibrationOffset(offset);
-		setCalibrated(true);
-		return offset;
+		if (!calibratorRef.current) {
+			calibratorRef.current = createCalibrator();
+		}
+		const calibrator = calibratorRef.current;
+		calibrator.collectSample(accel, gyro);
+		if (calibrator.getSamplesCollected() >= 20) {
+			const baseline = calibrator.collectAndCalculate().finish();
+			const offset = { pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw };
+			setCalibrationOffset(offset);
+			setCalibrated(true);
+			return offset;
+		}
+		return { pitch: 0, roll: 0, yaw: 0 };
 	}, []);
 
 	const resetCalibration = useCallback(() => {
+		if (calibratorRef.current) {
+			calibratorRef.current.reset();
+		}
 		setCalibrationOffset({ pitch: 0, roll: 0, yaw: 0 });
 		setCalibrated(false);
 	}, []);
 
 	const applyCalibration = useCallback((accel, gyro) => {
-		if (!calibrated) return { accelerometer: accel, gyroscope: gyro };
+		if (!calibrated || !calibratorRef.current) return { accelerometer: accel, gyroscope: gyro };
+		const calibratedAccel = calibratorRef.current.applyOffset(accel);
+		const calibratedGyro = calibratorRef.current.applyGyroOffset(gyro);
 		return {
-			accelerometer: { x: accel.x, y: accel.y, z: accel.z },
-			gyroscope: {
-				x: gyro.x - calibrationOffset.pitch * (Math.PI / 180),
-				y: gyro.y - calibrationOffset.roll * (Math.PI / 180),
-				z: gyro.z - calibrationOffset.yaw * (Math.PI / 180),
-			},
+			accelerometer: calibratedAccel,
+			gyroscope: calibratedGyro,
 		};
-	}, [calibrated, calibrationOffset]);
+	}, [calibrated]);
 
 	return { calibrated, calibrationOffset, calibrate, resetCalibration, applyCalibration };
 }

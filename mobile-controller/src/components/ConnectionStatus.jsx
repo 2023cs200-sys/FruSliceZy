@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../styles/colors';
 
-export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPortChange }) => {
+export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPortChange, disabled = false }) => {
   const getStatusColor = () => {
     switch (status) {
       case 'connected': return colors.success;
       case 'connecting': return colors.warning;
       case 'error': return colors.error;
-      default: return colors.error;
+      default: return colors.border;
     }
   };
 
@@ -30,9 +30,10 @@ export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPort
             style={styles.input}
             value={ip}
             onChangeText={onIpChange}
-            placeholder="192.168.1.10"
+            placeholder="Enter server IP"
             keyboardType="numbers-and-punctuation"
             autoCapitalize="none"
+            editable={!disabled}
           />
         </View>
         <View style={styles.inputGroup}>
@@ -43,11 +44,17 @@ export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPort
             onChangeText={onPortChange}
             placeholder="8765"
             keyboardType="numeric"
+            editable={!disabled}
           />
         </View>
       </View>
 
-      <TouchableOpacity style={[styles.button, { backgroundColor: getStatusColor() }]} onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: getStatusColor() }, disabled && styles.disabled]}
+        onPress={onPress}
+        activeOpacity={0.8}
+        disabled={disabled}
+      >
         <View style={styles.buttonContent}>
           <View style={[styles.statusDot, { backgroundColor: colors.textPrimary }]} />
           <Text style={styles.buttonText}>{getStatusText()}</Text>
@@ -111,5 +118,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
     letterSpacing: 1,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

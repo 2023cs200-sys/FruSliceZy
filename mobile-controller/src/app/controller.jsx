@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useMotionSensors } from '../hooks/useMotionSensors';
 import { useCalibration } from '../hooks/useCalibration';
+import { createMotionDetector } from '../sensors/motionDetector';
 import { ConnectionStatus } from '../components/ConnectionStatus';
 import { ControlButton } from '../components/ControlButton';
+import { CalibrationButton } from '../components/CalibrationButton';
 import { SensorDisplay } from '../components/SensorDisplay';
 import { MotionIndicator } from '../components/MotionIndicator';
 import { colors } from '../styles/colors';
@@ -14,10 +16,12 @@ export const options = {
 };
 
 export default function ControllerScreen() {
-  const [serverIp, setServerIp] = useState('192.168.1.10');
+  const [serverIp, setServerIp] = useState('');
   const [serverPort, setServerPort] = useState('8765');
   const [isCalibrated, setIsCalibrated] = useState(false);
   const [calibrationData, setCalibrationData] = useState({ pitch: 0, roll: 0, yaw: 0 });
+  const [motionStatus, setMotionStatus] = useState('READY');
+  const [lastSlashDirection, setLastSlashDirection] = useState(null);
 
   const wsUrl = `ws://${serverIp}:${serverPort}`;
 
@@ -41,20 +45,33 @@ export default function ControllerScreen() {
     maxReconnectAttempts: 10,
   });
 
-  const { 
-    accelerometer, 
-    gyroscope, 
-    startUpdates, 
+  const {
+    accelerometer,
+    gyroscope,
+    startUpdates,
     stopUpdates,
-    isAvailable 
+    isAvailable
   } = useMotionSensors();
 
-  const { 
-    calibrated, 
-    calibrate, 
+  const {
+    calibrated,
+    calibrate,
     resetCalibration,
-    applyCalibration 
+    applyCalibration
   } = useCalibration();
+
+  const motionDetectorRef = React.useRef(null);
+
+  useEffect(() => {
+    motionDetectorRef.current = createMotionDetector({
+      threshold: 2.5,
+      slashDuration: 500,
+      cooldown: 1000,
+    });
+    return () => {
+      motionDetectorRef.current?.stop();
+    };
+  }, []);
 
   useEffect(() => {
     if (status === 'connected' && isAvailable) {
@@ -63,14 +80,13 @@ export default function ControllerScreen() {
     } else {
       stopUpdates();
     }
-
     return () => stopUpdates();
   }, [status, isAvailable, startUpdates, stopUpdates, sendStatus]);
 
   useEffect(() => {
     if (status === 'connected' && accelerometer && gyroscope) {
       const calibratedData = applyCalibration(accelerometer, gyroscope);
-      
+
       sendMotion({
         type: 'motion',
         timestamp: Date.now(),
@@ -80,18 +96,51 @@ export default function ControllerScreen() {
     }
   }, [accelerometer, gyroscope, status, applyCalibration, sendMotion]);
 
-  const handleCalibrate = () => {
+  useEffect(() => {
+    if (!motionDetectorRef.current) return;
+
+    const detector = motionDetectorRef.current;
+
+    const handleSlash = (data) => {
+      setLastSlashDirection(data.direction);
+      setMotionStatus('SLASH DETECTED: ' + data.direction);
+      setTimeout(() => setMotionStatus('READY'), 1500);
+    };
+
+    const handleMotionChange = (data) => {
+      if (data.magnitude > 2.5) {
+        setMotionStatus('MOTION DETECTED');
+      } else {
+        setMotionStatus('READY');
+      }
+    };
+
+    detector.start(handleSlash, handleMotionChange, (baseline) => {
+      setCalibrationData({ pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw });
+      setIsCalibrated(true);
+    });
+
+    return () => detector.stop();
+  }, [status, isAvailable]);
+
+  const handleCalibrate = useCallback(() => {
+    const detector = motionDetectorRef.current;
+    if (!detector || !accelerometer || !gyroscope) return;
+
+    setMotionStatus('CALIBRATING...');
     const cal = calibrate(accelerometer, gyroscope);
     setCalibrationData(cal);
     setIsCalibrated(true);
     sendCalibrate();
-  };
+    setMotionStatus('READY');
+  }, [accelerometer, gyroscope, calibrate, sendCalibrate]);
 
-  const handleResetCalibration = () => {
+  const handleResetCalibration = useCallback(() => {
     resetCalibration();
     setIsCalibrated(false);
     setCalibrationData({ pitch: 0, roll: 0, yaw: 0 });
-  };
+    setMotionStatus('READY');
+  }, [resetCalibration]);
 
   const handleConnect = () => {
     if (status === 'connected') {
@@ -111,32 +160,47 @@ export default function ControllerScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>MOTION CONTROLLER</Text>
-        <ConnectionStatus 
-          status={status} 
-          onPress={handleConnect}
-          ip={serverIp}
-          port={serverPort}
-          onIpChange={handleIpChange}
-          onPortChange={handlePortChange}
-        />
+<ConnectionStatus
+	          status={status}
+	          onPress={handleConnect}
+	          ip={serverIp}
+	          port={serverPort}
+	          onIpChange={handleIpChange}
+	          onPortChange={handlePortChange}
+	          disabled={(!serverIp.trim() || !serverPort.trim()) && status !== 'connected'}
+	        />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>SENSOR DATA</Text>
-        <SensorDisplay 
-          accelerometer={accelerometer} 
-          gyroscope={gyroscope} 
+        <SensorDisplay
+          accelerometer={accelerometer}
+          gyroscope={gyroscope}
           calibrated={calibrationData}
         />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>MOTION INDICATOR</Text>
-        <MotionIndicator 
-          accelerometer={accelerometer} 
+        <MotionIndicator
+          accelerometer={accelerometer}
           gyroscope={gyroscope}
           calibrated={isCalibrated}
         />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>MOTION STATUS</Text>
+        <View style={styles.statusRow}>
+          <Text style={[styles.statusText, { color: motionStatus === 'READY' ? colors.success : colors.warning }]}>
+            ● {motionStatus}
+          </Text>
+          {lastSlashDirection && (
+            <Text style={styles.slashDirection}>
+              Last Slash: {lastSlashDirection}
+            </Text>
+          )}
+        </View>
       </View>
 
       <View style={styles.controls}>
@@ -148,12 +212,11 @@ export default function ControllerScreen() {
           icon={isConnected ? 'close' : 'wifi'}
         />
 
-        <ControlButton
-          title={isCalibrated ? 'RECALIBRATE' : 'CALIBRATE'}
+        <CalibrationButton
+          calibrated={isCalibrated}
           onPress={handleCalibrate}
-          variant="secondary"
-          disabled={!isConnected || !accelerometer}
-          icon="rotate-3d"
+          isCollecting={!isCalibrated && motionStatus === 'CALIBRATING...'}
+          samplesCollected={calibrated ? 20 : 0}
         />
 
         {isCalibrated && (
@@ -246,6 +309,19 @@ const styles = StyleSheet.create({
   statusDetail: {
     fontSize: 11,
     color: colors.textSecondary,
+    fontFamily: 'monospace',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  slashDirection: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: 'bold',
     fontFamily: 'monospace',
   },
   warning: {
