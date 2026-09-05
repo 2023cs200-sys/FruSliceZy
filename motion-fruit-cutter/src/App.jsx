@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { INITIAL_HIGH_SCORES } from './data/fruits.js';
 import { sound } from './utils/sound.js';
+import { useWebSocket } from './hooks/useWebSocket.js';
 
 import { ArcadeGameCanvas } from './components/ArcadeGameCanvas.jsx';
 import { HUD } from './components/HUD.jsx';
@@ -55,6 +56,58 @@ export default function App() {
 
   const [bombAlert, setBombAlert] = useState(false);
   const timerRef = useRef(null);
+
+  const wsUrl = `ws://${controller.ipAddress}:${controller.port}`;
+
+  const handleMotion = useCallback((data) => {
+    const { accelerometer, gyroscope } = data;
+    const pitch = accelerometer.x * 90;
+    const roll = accelerometer.y * 90;
+    const yaw = gyroscope.z * 90;
+
+    setController((prev) => ({
+      ...prev,
+      gyro: { pitch, roll, yaw },
+      lastMotionTime: Date.now(),
+    }));
+  }, []);
+
+  const handleConnectionChange = useCallback((newStatus) => {
+    const statusMap = {
+      disconnected: 'DISCONNECTED',
+      connecting: 'CONNECTING',
+      connected: 'CONNECTED',
+      error: 'ERROR',
+    };
+    setController((prev) => ({ ...prev, status: statusMap[newStatus] || 'DISCONNECTED' }));
+  }, []);
+
+  const {
+    status: wsStatus,
+    sendGameState,
+    sendCalibrate,
+    disconnect,
+    reconnect,
+  } = useWebSocket({
+    url: wsUrl,
+    role: 'browser',
+    onMotion: handleMotion,
+    onConnectionChange: handleConnectionChange,
+    onError: (err) => console.error('[WebSocket] Error:', err),
+    reconnectInterval: 3000,
+    maxReconnectAttempts: 10,
+    autoConnect: false,
+  });
+
+  useEffect(() => {
+    const statusMap = {
+      disconnected: 'DISCONNECTED',
+      connecting: 'CONNECTING',
+      connected: 'CONNECTED',
+      error: 'ERROR',
+    };
+    setController((prev) => ({ ...prev, status: statusMap[wsStatus] || 'DISCONNECTED' }));
+  }, [wsStatus]);
 
   // Start / Reset Game
   const resetGame = useCallback(() => {
@@ -286,6 +339,8 @@ export default function App() {
               controller={controller}
               onUpdateController={(updated) => setController((prev) => ({ ...prev, ...updated }))}
               onNavigate={setCurrentScreen}
+              onConnect={reconnect}
+              onDisconnect={disconnect}
             />
           </motion.div>
         )}

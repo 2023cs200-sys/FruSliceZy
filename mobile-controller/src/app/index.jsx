@@ -19,7 +19,7 @@ export default function MainScreen() {
       </Link>
 
       <Link href="/settings" asChild>
-        <Pressable style={[styles.button, styles.secondaryButton]}>
+        <Pressable style={StyleSheet.flatten([styles.button, styles.secondaryButton])}>
           <Text style={styles.buttonText}>SETTINGS</Text>
         </Pressable>
       </Link>
