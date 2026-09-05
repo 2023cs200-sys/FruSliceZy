@@ -10,6 +10,7 @@ export function useWebSocket(options) {
     onError,
     reconnectInterval = 3000,
     maxReconnectAttempts = 10,
+    autoConnect = true,
   } = options;
 
   const [status, setStatus] = useState('disconnected');
@@ -200,6 +201,8 @@ export function useWebSocket(options) {
   }, [disconnect, connect]);
 
   useEffect(() => {
+    if (!autoConnect) return undefined;
+
     connect();
 
     return () => {
@@ -208,7 +211,7 @@ export function useWebSocket(options) {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [connect, disconnect]);
+  }, [autoConnect, connect, disconnect]);
 
   return {
     status,

@@ -24,6 +24,7 @@ export const ArcadeGameCanvas = ({
   const currentComboSliceCountRef = useRef(0);
   const screenShakeRef = useRef(0);
   const screenFlashAlphaRef = useRef(0);
+  const lastFrameTimeRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -85,11 +86,6 @@ export const ArcadeGameCanvas = ({
       fruit.splitDistance = 0;
 
       const normalAngle = sliceAngle + Math.PI / 2;
-      const pushSpeed = 3.5 + Math.random() * 2.5;
-      fruit.half1Vx = fruit.vx + Math.cos(normalAngle) * pushSpeed;
-      fruit.half1Vy = fruit.vy + Math.sin(normalAngle) * pushSpeed - 1.5;
-      fruit.half2Vx = fruit.vx - Math.cos(normalAngle) * pushSpeed;
-      fruit.half2Vy = fruit.vy - Math.sin(normalAngle) * pushSpeed - 1.5;
 
       const now = performance.now();
       if (now - lastSliceTimeRef.current < 400) {
@@ -497,6 +493,8 @@ export const ArcadeGameCanvas = ({
   };
 
   useEffect(() => {
+    if (isPaused) return undefined;
+
     let animId;
 
     const render = (time) => {
@@ -507,12 +505,18 @@ export const ArcadeGameCanvas = ({
 
       const { width, height } = canvas;
 
+      let dt = 1;
+      if (lastFrameTimeRef.current !== null) {
+        dt = (time - lastFrameTimeRef.current) / (1000 / 60);
+      }
+      lastFrameTimeRef.current = time;
+
       let shakeX = 0;
       let shakeY = 0;
       if (screenShakeRef.current > 0) {
         shakeX = (Math.random() - 0.5) * screenShakeRef.current;
         shakeY = (Math.random() - 0.5) * screenShakeRef.current;
-        screenShakeRef.current *= 0.88;
+        screenShakeRef.current *= Math.pow(0.88, dt);
         if (screenShakeRef.current < 0.5) screenShakeRef.current = 0;
       }
 
@@ -551,37 +555,31 @@ export const ArcadeGameCanvas = ({
 
         const gravity = 0.38;
         fruitsRef.current.forEach((fruit) => {
-          if (!fruit.isSliced) {
-            fruit.x += fruit.vx;
-            fruit.y += fruit.vy;
-            fruit.vy += gravity;
-            fruit.rotation += fruit.vRot;
+          fruit.x += fruit.vx * dt;
+          fruit.y += fruit.vy * dt;
+          fruit.rotation += (fruit.isSliced ? fruit.vRot * 1.5 : fruit.vRot) * dt;
+          if (fruit.isSliced) {
+            fruit.vy += gravity * 1.15 * dt;
+            fruit.splitDistance += 3.8 * dt;
           } else {
-            if (fruit.half1Vx !== undefined && fruit.half1Vy !== undefined) {
-              fruit.half1Vy += gravity * 1.1;
-            }
-            if (fruit.half2Vx !== undefined && fruit.half2Vy !== undefined) {
-              fruit.half2Vy += gravity * 1.1;
-            }
-            fruit.splitDistance += 3.8;
-            fruit.rotation += fruit.vRot * 1.5;
+            fruit.vy += gravity * dt;
           }
         });
 
         fruitsRef.current = fruitsRef.current.filter((f) => f.y < height + 150);
 
         particlesRef.current.forEach((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += p.isJuiceSplash ? 0.25 : 0.1;
-          p.life++;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += (p.isJuiceSplash ? 0.25 : 0.1) * dt;
+          p.life += dt;
           p.alpha = Math.max(0, 1 - p.life / p.maxLife);
         });
         particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
 
         floatingTextsRef.current.forEach((ft) => {
-          ft.y -= 1.8;
-          ft.life++;
+          ft.y -= 1.8 * dt;
+          ft.life += dt;
           ft.alpha = Math.max(0, 1 - ft.life / ft.maxLife);
         });
         floatingTextsRef.current = floatingTextsRef.current.filter((ft) => ft.life < ft.maxLife);
@@ -678,7 +676,7 @@ export const ArcadeGameCanvas = ({
       if (screenFlashAlphaRef.current > 0.01) {
         ctx.fillStyle = `rgba(239, 68, 68, ${screenFlashAlphaRef.current})`;
         ctx.fillRect(0, 0, width, height);
-        screenFlashAlphaRef.current *= 0.85;
+        screenFlashAlphaRef.current *= Math.pow(0.85, dt);
       }
 
       ctx.restore();

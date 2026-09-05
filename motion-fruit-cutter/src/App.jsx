@@ -96,6 +96,7 @@ export default function App() {
     onError: (err) => console.error('[WebSocket] Error:', err),
     reconnectInterval: 3000,
     maxReconnectAttempts: 10,
+    autoConnect: false,
   });
 
   useEffect(() => {
