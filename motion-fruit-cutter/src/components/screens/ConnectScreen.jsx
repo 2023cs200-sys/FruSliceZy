@@ -10,7 +10,7 @@ export const ConnectScreen = ({
   onConnect, 
   onDisconnect 
 }) => {
-  const [ip, setIp] = useState(controller.ipAddress || '192.168.1.10');
+  const [ip, setIp] = useState(controller.ipAddress || '');
   const [port, setPort] = useState(controller.port || '8765');
   const [isSimulatingTilt, setIsSimulatingTilt] = useState(false);
 
@@ -55,6 +55,16 @@ export const ConnectScreen = ({
           <span className="font-arcade text-xs tracking-wider text-slate-200">
             ● {controller.status === 'CONNECTING' ? 'CONNECTING...' : controller.status}
           </span>
+          {controller.calibrated && (
+            <span className="font-arcade text-xs tracking-wider text-emerald-400 ml-2">
+              ✅ CALIBRATED
+            </span>
+          )}
+          {controller.status === 'CONNECTED' && !controller.calibrated && (
+            <span className="font-arcade text-xs tracking-wider text-amber-400 ml-2">
+              NEEDS CALIBRATION
+            </span>
+          )}
         </div>
       </div>
 
@@ -87,7 +97,7 @@ export const ConnectScreen = ({
                 type="text"
                 value={ip}
                 onChange={(e) => setIp(e.target.value)}
-                placeholder="192.168.1.10"
+                placeholder="Enter server IP"
                 className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-emerald-400 font-mono text-base focus:outline-none focus:border-emerald-400 transition-colors"
               />
             </div>
@@ -136,9 +146,15 @@ export const ConnectScreen = ({
             animate={
               isSimulatingTilt
                 ? { rotateZ: [-35, 30, 0], scale: [1, 1.08, 1], y: [-15, 10, 0] }
-                : { rotateX: 12, rotateY: -10, rotateZ: controller.status === 'CONNECTED' ? [0, 4, -4, 0] : 0 }
+                : controller.status === 'CONNECTED'
+                ? {
+                    rotateZ: [controller.swordPosition?.x ? controller.swordPosition.x * 20 : 0, -controller.swordPosition?.y ? controller.swordPosition.y * 20 : 0, 0],
+                    scale: [1, controller.isSlashing ? 1.08 : 1, 1],
+                    y: [0, controller.isSlashing ? -10 : 0, 0],
+                  }
+                : { rotateX: 12, rotateY: -10, rotateZ: 0 }
             }
-            transition={isSimulatingTilt ? { duration: 0.3 } : { repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+            transition={isSimulatingTilt ? { duration: 0.3 } : { repeat: Infinity, duration: 2, ease: 'easeInOut' }}
             className="w-48 h-80 rounded-[36px] bg-slate-950 border-4 border-slate-700 shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(16,185,129,0.2)] p-3 relative flex flex-col justify-between items-center"
           >
             <div className="w-16 h-4 bg-slate-800 rounded-full flex items-center justify-center">
@@ -150,13 +166,14 @@ export const ConnectScreen = ({
               </div>
               <div className="z-10 mt-2">
                 <span className="text-[10px] font-bold text-emerald-400 tracking-widest uppercase block">KATANA SENSOR</span>
-                <span className="font-arcade text-lg text-white">READY</span>
+                <span className="font-arcade text-lg text-white">{controller.calibrated ? 'CALIBRATED' : 'READY'}</span>
               </div>
               <div className="z-10 w-full bg-slate-950/80 rounded-xl p-2 border border-slate-800 text-[11px] font-mono text-emerald-400 space-y-1">
-                <div className="flex justify-between"><span className="text-slate-500">PITCH:</span><span>+12.4°</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">ROLL:</span><span>-08.1°</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">YAW:</span><span>+04.7°</span></div>
-              </div>
+                  <div className="flex justify-between"><span className="text-slate-500">MAG:</span><span>{controller.motionMagnitude?.toFixed(1) || '0.0'}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">SWORD:</span><span>{controller.swordPosition?.x?.toFixed(2) || '0.00'}, {controller.swordPosition?.y?.toFixed(2) || '0.00'}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">ROT:</span><span>{controller.swordRotation?.z?.toFixed(1) || '0.0'}°</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">SLASH:</span><span>{controller.isSlashing ? '⚡ ' + (controller.slashDirection || 'NONE') : '—'}</span></div>
+                </div>
               <div className="z-10 mb-1"><span className="text-[9px] text-slate-500">SWIPE PHONE TO SLASH</span></div>
             </div>
             <div className="w-14 h-1 bg-slate-700 rounded-full" />

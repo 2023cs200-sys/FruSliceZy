@@ -43,15 +43,25 @@ export default function App() {
     vibration: true,
     graphicsQuality: 'ULTRA',
     bladeStyle: 'CRIMSON',
+    motionThreshold: 2.5,
+    slashThreshold: 5.0,
+    swordSpeed: 15.0,
+    rotationSensitivity: 45.0,
   });
 
   // Smartphone Motion Controller Config
   const [controller, setController] = useState({
-    ipAddress: '192.168.1.10',
+    ipAddress: '',
     port: '8765',
     status: 'DISCONNECTED',
     gyro: { pitch: 0, roll: 0, yaw: 0 },
     lastMotionTime: 0,
+    swordPosition: { x: 0, y: 0 },
+    swordRotation: { z: 0 },
+    isSlashing: false,
+    slashDirection: 'NONE',
+    motionMagnitude: 0,
+    calibrated: false,
   });
 
   const [bombAlert, setBombAlert] = useState(false);
@@ -60,15 +70,21 @@ export default function App() {
   const wsUrl = `ws://${controller.ipAddress}:${controller.port}`;
 
   const handleMotion = useCallback((data) => {
-    const { accelerometer, gyroscope } = data;
-    const pitch = accelerometer.x * 90;
-    const roll = accelerometer.y * 90;
-    const yaw = gyroscope.z * 90;
+    const { accelerometer, gyroscope, sword_position, sword_rotation, motion_magnitude, is_slashing, slash_direction, calibrated } = data;
+    const pitch = accelerometer ? accelerometer.x * 90 : 0;
+    const roll = accelerometer ? accelerometer.y * 90 : 0;
+    const yaw = gyroscope ? gyroscope.z * 90 : 0;
 
     setController((prev) => ({
       ...prev,
       gyro: { pitch, roll, yaw },
       lastMotionTime: Date.now(),
+      swordPosition: sword_position || { x: 0, y: 0 },
+      swordRotation: sword_rotation || { z: 0 },
+      isSlashing: is_slashing || false,
+      slashDirection: slash_direction || 'NONE',
+      motionMagnitude: motion_magnitude || 0,
+      calibrated: calibrated || false,
     }));
   }, []);
 
@@ -86,6 +102,7 @@ export default function App() {
     status: wsStatus,
     sendGameState,
     sendCalibrate,
+    sendTuning,
     disconnect,
     reconnect,
   } = useWebSocket({
@@ -108,6 +125,18 @@ export default function App() {
     };
     setController((prev) => ({ ...prev, status: statusMap[wsStatus] || 'DISCONNECTED' }));
   }, [wsStatus]);
+
+  useEffect(() => {
+    if (wsStatus !== 'connected') return;
+    sendTuning({
+      sensitivity: settings.controllerSensitivity,
+      smoothing: settings.motionSmoothing,
+      motion_threshold: settings.motionThreshold,
+      slash_threshold: settings.slashThreshold,
+      sword_speed: settings.swordSpeed,
+      rotation_sensitivity: settings.rotationSensitivity,
+    });
+  }, [settings, wsStatus, sendTuning]);
 
   // Start / Reset Game
   const resetGame = useCallback(() => {
@@ -285,14 +314,18 @@ export default function App() {
             : 'opacity-25 pointer-events-none'
         }`}
       >
-        <ArcadeGameCanvas
-          isPaused={stats.isPaused || currentScreen !== 'GAMEPLAY'}
-          settings={settings}
-          onFruitSliced={handleFruitSliced}
-          onBombHit={handleBombHit}
-          onComboIncrement={handleComboIncrement}
-          combo={stats.currentCombo}
-        />
+<ArcadeGameCanvas
+	          isPaused={stats.isPaused || currentScreen !== 'GAMEPLAY'}
+	          settings={settings}
+	          onFruitSliced={handleFruitSliced}
+	          onBombHit={handleBombHit}
+	          onComboIncrement={handleComboIncrement}
+	          combo={stats.currentCombo}
+	          swordPosition={controller.swordPosition}
+	          swordRotation={controller.swordRotation}
+	          isSlashing={controller.isSlashing}
+	          motionMagnitude={controller.motionMagnitude}
+	        />
 
         {/* In-Game HUD (Only on GAMEPLAY screen) */}
         {currentScreen === 'GAMEPLAY' && (

@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Optional, Dict, Set, Any
 
 import websockets
+from src.motion_mapper import MotionMapper
 
 
 class ClientRole(Enum):
@@ -24,6 +25,7 @@ class MessageType(Enum):
     GAME_STATE = "game"
     ERROR = "error"
     ACK = "ack"
+    TUNING = "tuning"
 
 
 @dataclass
@@ -44,6 +46,15 @@ class WebSocketServer:
         self.controller_client: Optional[Client] = None
         self.browser_client: Optional[Client] = None
         self._running = False
+        self.motion_mapper = MotionMapper()
+        self.tuning_config = {
+            'sensitivity': 7.0,
+            'smoothing': 5.0,
+            'motion_threshold': 2.5,
+            'slash_threshold': 5.0,
+            'sword_speed': 15.0,
+            'rotation_sensitivity': 45.0,
+        }
 
     async def start(self):
         self._running = True
@@ -96,6 +107,8 @@ class WebSocketServer:
                 await self._handle_motion(client, data)
             elif msg_type == MessageType.CALIBRATE.value:
                 await self._handle_calibrate(client, data)
+            elif msg_type == MessageType.TUNING.value:
+                await self._handle_tuning(client, data)
             elif msg_type == MessageType.PING.value:
                 await self._handle_ping(client, data)
             elif msg_type == MessageType.STATUS.value:
@@ -124,9 +137,28 @@ class WebSocketServer:
             await self._send_error(client, "Invalid sensor data: values must be numeric")
             return
 
+        accel = data["accelerometer"]
+        gyro = data["gyroscope"]
+
+        self.motion_mapper.update_config(self.tuning_config)
+        mapped = self.motion_mapper.map(accel, gyro)
+
+        relay_data = {
+            "type": "motion",
+            "timestamp": data["timestamp"],
+            "accelerometer": accel,
+            "gyroscope": gyro,
+            "sword_position": mapped["sword_position"],
+            "sword_rotation": mapped["sword_rotation"],
+            "motion_magnitude": mapped["motion_magnitude"],
+            "is_slashing": mapped["is_slashing"],
+            "slash_direction": mapped["slash_direction"],
+            "calibrated": mapped["calibrated"],
+        }
+
         if self.browser_client and self.browser_client.websocket:
             try:
-                await self.browser_client.websocket.send(json.dumps(data))
+                await self.browser_client.websocket.send(json.dumps(relay_data))
             except websockets.exceptions.ConnectionClosed:
                 print("Browser client disconnected during motion relay")
                 self.browser_client = None
@@ -138,13 +170,31 @@ class WebSocketServer:
             client.role = ClientRole.CONTROLLER
             self.controller_client = client
 
+        accel = data.get("accelerometer", {})
+        if accel:
+            self.motion_mapper.set_calibration(
+                accel.get('x', 0),
+                accel.get('y', 0),
+                accel.get('z', 0),
+            )
+            print(f"[MotionMapper] Calibration updated: {self.motion_mapper.calibration_offset}")
+
         if self.browser_client and self.browser_client.websocket:
             try:
-                await self.browser_client.websocket.send(json.dumps({"type": "calibrate"}))
+                await self.browser_client.websocket.send(json.dumps({"type": "calibrate", "calibrated": True}))
             except websockets.exceptions.ConnectionClosed:
                 self.browser_client = None
 
         await self._send_ack(client, "calibrate")
+
+    async def _handle_tuning(self, client: Client, data: Dict):
+        config = data.get("config", {})
+        for key, value in config.items():
+            if key in self.tuning_config:
+                self.tuning_config[key] = float(value)
+        self.motion_mapper.update_config(self.tuning_config)
+        print(f"[MotionMapper] Tuning updated: {self.tuning_config}")
+        await self._send_ack(client, "tuning")
 
     async def _handle_ping(self, client: Client, data: Dict):
         await self._send_ack(client, "ping")

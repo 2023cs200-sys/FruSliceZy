@@ -54,7 +54,7 @@ export class ConnectionManager {
 			};
 
 			this.ws.onerror = (error) => {
-				console.error('[ConnectionManager] Error:', error);
+				console.error('[ConnectionManager] WebSocket error event received');
 				this.setStatus('error');
 				this.config.onError('WebSocket connection error');
 			};
@@ -110,8 +110,8 @@ export class ConnectionManager {
 		});
 	}
 
-	sendCalibrate() {
-		this.send({ type: MESSAGE_TYPES.CALIBRATE });
+	sendCalibrate(data) {
+		this.send({ type: MESSAGE_TYPES.CALIBRATE, ...data });
 	}
 
 	sendPing() {

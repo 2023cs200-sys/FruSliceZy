@@ -106,6 +106,50 @@ export const SettingsScreen = ({ settings, onUpdateSettings, onNavigate }) => {
             </div>
             <input type="range" min={1} max={10} value={settings.motionSmoothing} onChange={(e) => onUpdateSettings({ motionSmoothing: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
           </div>
+
+          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span className="font-arcade text-sm sm:text-base text-white tracking-wider">MOTION THRESHOLD</span>
+              </div>
+              <span className="font-mono text-sm font-bold text-cyan-300">{settings.motionThreshold.toFixed(1)}</span>
+            </div>
+            <input type="range" min={1} max={10} step={0.5} value={settings.motionThreshold} onChange={(e) => onUpdateSettings({ motionThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span className="font-arcade text-sm sm:text-base text-white tracking-wider">SLASH THRESHOLD</span>
+              </div>
+              <span className="font-mono text-sm font-bold text-cyan-300">{settings.slashThreshold.toFixed(1)}</span>
+            </div>
+            <input type="range" min={2} max={10} step={0.5} value={settings.slashThreshold} onChange={(e) => onUpdateSettings({ slashThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span className="font-arcade text-sm sm:text-base text-white tracking-wider">SWORD SPEED</span>
+              </div>
+              <span className="font-mono text-sm font-bold text-cyan-300">{settings.swordSpeed.toFixed(1)}</span>
+            </div>
+            <input type="range" min={5} max={30} step={1} value={settings.swordSpeed} onChange={(e) => onUpdateSettings({ swordSpeed: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span className="font-arcade text-sm sm:text-base text-white tracking-wider">ROTATION SENSITIVITY</span>
+              </div>
+              <span className="font-mono text-sm font-bold text-cyan-300">{settings.rotationSensitivity.toFixed(0)}°</span>
+            </div>
+            <input type="range" min={10} max={90} step={5} value={settings.rotationSensitivity} onChange={(e) => onUpdateSettings({ rotationSensitivity: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+          </div>
         </div>
 
         {/* BLADE SKINS */}

@@ -1,0 +1,17 @@
+export const SAMPLE_COUNT = 20;
+export const FILTER_WINDOW_SIZE = 5;
+export const MOTION_THRESHOLD = 2.5;
+export const CALIBRATION_TIMEOUT_MS = 2000;
+export const SENSOR_UPDATE_INTERVAL_MS = 16;
+export const RECONNECT_INTERVAL_MS = 3000;
+export const MAX_RECONNECT_ATTEMPTS = 10;
+export const SLASH_DURATION_MS = 500;
+export const SLASH_COOLDOWN_MS = 1000;
+export const MAGNITUDE_SCALE_FACTOR = 10;
+export const DIRECTION_DEGREE_THRESHOLD = 45;
+export const DIRECTION_LEFT = 'LEFT';
+export const DIRECTION_RIGHT = 'RIGHT';
+export const DIRECTION_UP = 'UP';
+export const DIRECTION_DOWN = 'DOWN';
+export const DIRECTION_DIAGONAL = 'DIAGONAL';
+export const DIRECTION_NONE = 'NONE';
