@@ -9,6 +9,10 @@ export const ArcadeGameCanvas = ({
   onBombHit,
   onComboIncrement,
   combo,
+  swordPosition = { x: 0, y: 0 },
+  swordRotation = { z: 0 },
+  isSlashing = false,
+  motionMagnitude = 0,
 }) => {
   const canvasRef = useRef(null);
   const fruitsRef = useRef([]);
@@ -252,6 +256,31 @@ export const ArcadeGameCanvas = ({
     isMouseDownRef.current = false;
     lastMousePosRef.current = null;
   };
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    const swordX = width / 2 + swordPosition.x * width * 0.4;
+    const swordY = height * 0.45 + swordPosition.y * height * 0.3;
+
+    if (isSlashing || motionMagnitude > 0.5) {
+      bladeTrailRef.current.push({
+        x: swordX,
+        y: swordY,
+        time: performance.now(),
+        width: 16 + motionMagnitude * 4,
+      });
+    }
+
+    if (lastMousePosRef.current) {
+      checkSliceCollision(lastMousePosRef.current, { x: swordX, y: swordY });
+    }
+    lastMousePosRef.current = { x: swordX, y: swordY };
+  }, [swordPosition, isSlashing, motionMagnitude, checkSliceCollision]);
 
   const drawFruit = (ctx, type, r) => {
     switch (type) {
@@ -685,7 +714,7 @@ export const ArcadeGameCanvas = ({
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [isPaused, spawnFruit, settings.bladeStyle, settings.graphicsQuality]);
+  }, [isPaused, spawnFruit, settings.bladeStyle, settings.graphicsQuality, swordPosition, isSlashing, motionMagnitude]);
 
   return (
     <div id="gameplay-arena-container" className="relative w-full h-full cursor-crosshair select-none touch-none overflow-hidden">

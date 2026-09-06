@@ -110,8 +110,8 @@ export class ConnectionManager {
 		});
 	}
 
-	sendCalibrate() {
-		this.send({ type: MESSAGE_TYPES.CALIBRATE });
+	sendCalibrate(data) {
+		this.send({ type: MESSAGE_TYPES.CALIBRATE, ...data });
 	}
 
 	sendPing() {

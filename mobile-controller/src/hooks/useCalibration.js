@@ -5,18 +5,27 @@ export function useCalibration() {
 	const [calibrated, setCalibrated] = useState(false);
 	const [calibrationOffset, setCalibrationOffset] = useState({ pitch: 0, roll: 0, yaw: 0 });
 	const calibratorRef = useRef(null);
+	const calibrationResultRef = useRef(null);
 
 	const calibrate = useCallback((accel, gyro) => {
 		if (!calibratorRef.current) {
 			calibratorRef.current = createCalibrator();
 		}
 		const calibrator = calibratorRef.current;
-		calibrator.collectSample(accel, gyro);
-		if (calibrator.getSamplesCollected() >= 20) {
-			const baseline = calibrator.collectAndCalculate().finish();
+
+		if (!calibrationResultRef.current || !calibrationResultRef.current.isCollecting()) {
+			calibrationResultRef.current = calibrator.collectAndCalculate();
+		}
+
+		const result = calibrationResultRef.current;
+		result.collectSample(accel, gyro);
+
+		if (result.samplesCollected() >= 20) {
+			const baseline = result.finish();
 			const offset = { pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw };
 			setCalibrationOffset(offset);
 			setCalibrated(true);
+			calibrationResultRef.current = null;
 			return offset;
 		}
 		return { pitch: 0, roll: 0, yaw: 0 };
@@ -26,6 +35,7 @@ export function useCalibration() {
 		if (calibratorRef.current) {
 			calibratorRef.current.reset();
 		}
+		calibrationResultRef.current = null;
 		setCalibrationOffset({ pitch: 0, roll: 0, yaw: 0 });
 		setCalibrated(false);
 	}, []);

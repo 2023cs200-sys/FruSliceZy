@@ -15,17 +15,33 @@ export function useWebSocket(options) {
 
   const [status, setStatus] = useState('disconnected');
   const [lastMessage, setLastMessage] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState(url);
 
   const wsRef = useRef(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef(null);
   const isIntentionalDisconnectRef = useRef(false);
   const messageQueueRef = useRef([]);
+  const urlRef = useRef(url);
+  const onConnectionChangeRef = useRef(onConnectionChange);
+  const onErrorRef = useRef(onError);
+  const onMotionRef = useRef(onMotion);
+  const onGameStateRef = useRef(onGameState);
+
+  urlRef.current = url;
+  onConnectionChangeRef.current = onConnectionChange;
+  onErrorRef.current = onError;
+  onMotionRef.current = onMotion;
+  onGameStateRef.current = onGameState;
+
+  useEffect(() => {
+    setCurrentUrl(url);
+  }, [url]);
 
   const updateStatus = useCallback((newStatus) => {
     setStatus(newStatus);
-    onConnectionChange?.(newStatus);
-  }, [onConnectionChange]);
+    onConnectionChangeRef.current?.(newStatus);
+  }, []);
 
   const processMessage = useCallback((event) => {
     try {
@@ -34,19 +50,25 @@ export function useWebSocket(options) {
 
       switch (data.type) {
         case 'motion':
-          if (onMotion && data.accelerometer && data.gyroscope) {
-            onMotion({
+          if (onMotionRef.current && data.accelerometer && data.gyroscope) {
+            onMotionRef.current({
               timestamp: data.timestamp,
               accelerometer: data.accelerometer,
               gyroscope: data.gyroscope,
+              sword_position: data.sword_position,
+              sword_rotation: data.sword_rotation,
+              motion_magnitude: data.motion_magnitude,
+              is_slashing: data.is_slashing,
+              slash_direction: data.slash_direction,
+              calibrated: data.calibrated,
             });
           }
           break;
 
         case 'game':
         case 'game_state':
-          if (onGameState && data.state) {
-            onGameState(data.state);
+          if (onGameStateRef.current && data.state) {
+            onGameStateRef.current(data.state);
           }
           break;
 
@@ -60,7 +82,7 @@ export function useWebSocket(options) {
 
         case 'error':
           console.error('[WebSocket] Server error:', data.message);
-          onError?.(data.message);
+          onErrorRef.current?.(data.message);
           break;
 
         case 'calibrate':
@@ -73,7 +95,7 @@ export function useWebSocket(options) {
     } catch (err) {
       console.error('[WebSocket] Failed to parse message:', err);
     }
-  }, [onMotion, onGameState, onError]);
+  }, []);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -84,11 +106,11 @@ export function useWebSocket(options) {
     isIntentionalDisconnectRef.current = false;
 
     try {
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(urlRef.current);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('[WebSocket] Connected to', url);
+        console.log('[WebSocket] Connected to', urlRef.current);
         reconnectAttemptsRef.current = 0;
         updateStatus('connected');
 
@@ -103,7 +125,7 @@ export function useWebSocket(options) {
 
         if (!isIntentionalDisconnectRef.current) {
           updateStatus('disconnected');
-          scheduleReconnect();
+          scheduleReconnectRef.current();
         } else {
           updateStatus('disconnected');
         }
@@ -112,20 +134,20 @@ export function useWebSocket(options) {
       ws.onerror = (error) => {
         console.error('[WebSocket] Error:', error);
         updateStatus('error');
-        onError?.('WebSocket connection error');
+        onErrorRef.current?.('WebSocket connection error');
       };
     } catch (err) {
       console.error('[WebSocket] Failed to create connection:', err);
       updateStatus('error');
-      onError?.('Failed to create WebSocket connection');
-      scheduleReconnect();
+      onErrorRef.current?.('Failed to create WebSocket connection');
+      scheduleReconnectRef.current();
     }
-  }, [url, updateStatus, processMessage, onError]);
+  }, [updateStatus, processMessage]);
 
   const scheduleReconnect = useCallback(() => {
     if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
       console.log('[WebSocket] Max reconnect attempts reached');
-      onError?.('Max reconnection attempts reached');
+      onErrorRef.current?.('Max reconnection attempts reached');
       return;
     }
 
@@ -137,7 +159,10 @@ export function useWebSocket(options) {
     reconnectTimeoutRef.current = setTimeout(() => {
       connect();
     }, delay);
-  }, [connect, maxReconnectAttempts, reconnectInterval, onError]);
+  }, [connect, maxReconnectAttempts, reconnectInterval]);
+
+  const scheduleReconnectRef = useRef(scheduleReconnect);
+  scheduleReconnectRef.current = scheduleReconnect;
 
   const send = useCallback((message) => {
     const ws = wsRef.current;
@@ -166,6 +191,10 @@ export function useWebSocket(options) {
 
   const sendCalibrate = useCallback(() => {
     send({ type: 'calibrate' });
+  }, [send]);
+
+  const sendTuning = useCallback((config) => {
+    send({ type: 'tuning', config });
   }, [send]);
 
   const sendPing = useCallback(() => {
@@ -200,18 +229,24 @@ export function useWebSocket(options) {
     setTimeout(connect, 100);
   }, [disconnect, connect]);
 
+  const connectRef = useRef(connect);
+  const disconnectRef = useRef(disconnect);
+  connectRef.current = connect;
+  disconnectRef.current = disconnect;
+
   useEffect(() => {
-    if (!autoConnect) return undefined;
-
-    connect();
-
+    let cancelled = false;
+    if (autoConnect) {
+      connectRef.current();
+    }
     return () => {
-      disconnect();
+      cancelled = true;
+      disconnectRef.current();
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [autoConnect, connect, disconnect]);
+  }, [autoConnect, currentUrl]);
 
   return {
     status,
@@ -219,6 +254,7 @@ export function useWebSocket(options) {
     sendMotion,
     sendGameState,
     sendCalibrate,
+    sendTuning,
     sendPing,
     sendStatus,
     disconnect,

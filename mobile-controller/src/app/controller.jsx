@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useMotionSensors } from '../hooks/useMotionSensors';
-import { useCalibration } from '../hooks/useCalibration';
 import { createMotionDetector } from '../sensors/motionDetector';
 import { ConnectionStatus } from '../components/ConnectionStatus';
 import { ControlButton } from '../components/ControlButton';
@@ -22,6 +21,9 @@ export default function ControllerScreen() {
   const [calibrationData, setCalibrationData] = useState({ pitch: 0, roll: 0, yaw: 0 });
   const [motionStatus, setMotionStatus] = useState('READY');
   const [lastSlashDirection, setLastSlashDirection] = useState(null);
+  const [isCollecting, setIsCollecting] = useState(false);
+  const [samplesCollected, setSamplesCollected] = useState(0);
+  const calResultRef = useRef(null);
 
   const wsUrl = `ws://${serverIp}:${serverPort}`;
 
@@ -53,13 +55,6 @@ export default function ControllerScreen() {
     isAvailable
   } = useMotionSensors();
 
-  const {
-    calibrated,
-    calibrate,
-    resetCalibration,
-    applyCalibration
-  } = useCalibration();
-
   const motionDetectorRef = React.useRef(null);
 
   useEffect(() => {
@@ -85,7 +80,9 @@ export default function ControllerScreen() {
 
   useEffect(() => {
     if (status === 'connected' && accelerometer && gyroscope) {
-      const calibratedData = applyCalibration(accelerometer, gyroscope);
+      const detector = motionDetectorRef.current;
+      if (!detector) return;
+      const calibratedData = detector.getCalibratedData(accelerometer, gyroscope);
 
       sendMotion({
         type: 'motion',
@@ -94,7 +91,7 @@ export default function ControllerScreen() {
         gyroscope: calibratedData.gyroscope,
       });
     }
-  }, [accelerometer, gyroscope, status, applyCalibration, sendMotion]);
+  }, [accelerometer, gyroscope, status, sendMotion]);
 
   useEffect(() => {
     if (!motionDetectorRef.current) return;
@@ -115,10 +112,7 @@ export default function ControllerScreen() {
       }
     };
 
-    detector.start(handleSlash, handleMotionChange, (baseline) => {
-      setCalibrationData({ pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw });
-      setIsCalibrated(true);
-    });
+    detector.start(handleSlash, handleMotionChange);
 
     return () => detector.stop();
   }, [status, isAvailable]);
@@ -128,19 +122,41 @@ export default function ControllerScreen() {
     if (!detector || !accelerometer || !gyroscope) return;
 
     setMotionStatus('CALIBRATING...');
-    const cal = calibrate(accelerometer, gyroscope);
-    setCalibrationData(cal);
-    setIsCalibrated(true);
-    sendCalibrate();
-    setMotionStatus('READY');
-  }, [accelerometer, gyroscope, calibrate, sendCalibrate]);
+    setIsCollecting(true);
+    setSamplesCollected(0);
+
+    const calResult = detector.calibrate();
+    calResultRef.current = calResult;
+    setSamplesCollected(calResult.samplesCollected());
+
+    sendCalibrate({ accelerometer });
+  }, [accelerometer, gyroscope, sendCalibrate]);
+
+  useEffect(() => {
+    if (!isCollecting || !calResultRef.current) return;
+    const result = calResultRef.current;
+    const count = result.samplesCollected();
+    setSamplesCollected(count);
+    if (count >= 20) {
+      const baseline = result.finish();
+      const offset = { pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw };
+      setCalibrationData(offset);
+      setIsCalibrated(true);
+      setIsCollecting(false);
+      setMotionStatus('READY');
+      calResultRef.current = null;
+    }
+  }, [isCollecting, samplesCollected]);
 
   const handleResetCalibration = useCallback(() => {
-    resetCalibration();
+    const detector = motionDetectorRef.current;
+    if (detector) detector.resetCalibration();
     setIsCalibrated(false);
     setCalibrationData({ pitch: 0, roll: 0, yaw: 0 });
     setMotionStatus('READY');
-  }, [resetCalibration]);
+    setIsCollecting(false);
+    setSamplesCollected(0);
+  }, []);
 
   const handleConnect = () => {
     if (status === 'connected') {
@@ -160,7 +176,7 @@ export default function ControllerScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>MOTION CONTROLLER</Text>
-<ConnectionStatus
+        <ConnectionStatus
 	          status={status}
 	          onPress={handleConnect}
 	          ip={serverIp}
@@ -215,8 +231,8 @@ export default function ControllerScreen() {
         <CalibrationButton
           calibrated={isCalibrated}
           onPress={handleCalibrate}
-          isCollecting={!isCalibrated && motionStatus === 'CALIBRATING...'}
-          samplesCollected={calibrated ? 20 : 0}
+          isCollecting={isCollecting}
+          samplesCollected={samplesCollected}
         />
 
         {isCalibrated && (

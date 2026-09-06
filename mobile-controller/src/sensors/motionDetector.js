@@ -15,7 +15,6 @@ export function createMotionDetector(config = {}) {
 
 	let onSlashCallback = null;
 	let onMotionChangeCallback = null;
-	let onCalibratedCallback = null;
 
 	let isRunning = false;
 	let isCalibrated = false;
@@ -32,6 +31,11 @@ export function createMotionDetector(config = {}) {
 
 	function handleAccelUpdate(filteredData) {
 		if (!isRunning) return;
+
+		if (calibrator && calibrator.isCollecting && !isCalibrated) {
+			const gyroData = gyroscope.getFilteredData();
+			calibrator.collectSample(filteredData, gyroData || { x: 0, y: 0, z: 0 });
+		}
 
 		let calibratedAccel = filteredData;
 		if (isCalibrated && calibrator) {
@@ -104,11 +108,10 @@ export function createMotionDetector(config = {}) {
 		}
 	}
 
-	function start(onSlash, onMotionChange, onCalibrated) {
+	function start(onSlash, onMotionChange) {
 		init();
 		onSlashCallback = onSlash;
 		onMotionChangeCallback = onMotionChange;
-		onCalibratedCallback = onCalibrated;
 		isRunning = true;
 
 		accelerometer.start((data) => handleAccelUpdate(data), (err) => console.error('[MotionDetector] Accel error:', err));
@@ -122,24 +125,36 @@ export function createMotionDetector(config = {}) {
 		if (calibrator) calibrator.reset();
 		onSlashCallback = null;
 		onMotionChangeCallback = null;
-		onCalibratedCallback = null;
 		magnitudeBuffer = [];
 		currentDirection = DIRECTION_NONE;
 		currentMagnitude = 0;
+		isCalibrated = false;
 	}
 
 	function calibrate() {
 		if (!calibrator) init();
-		return calibrator.collectAndCalculate();
+		const result = calibrator.collectAndCalculate();
+		return {
+			isCollecting: result.isCollecting,
+			samplesCollected: () => result.samplesCollected(),
+			isReady: () => result.isReady(),
+			collectSample: (accel, gyro) => result.collectSample(accel, gyro),
+			finish: () => result.finish(),
+		};
 	}
 
 	function applyCalibration() {
 		if (!calibrator) init();
 		isCalibrated = calibrator.isReady();
-		if (onCalibratedCallback && isCalibrated) {
-			onCalibratedCallback(calibrator.getBaseline());
-		}
 		return isCalibrated;
+	}
+
+	function getCalibratedData(accelData, gyroData) {
+		if (!isCalibrated || !calibrator) return { accelerometer: accelData, gyroscope: gyroData };
+		return {
+			accelerometer: calibrator.applyOffset(accelData),
+			gyroscope: calibrator.applyGyroOffset(gyroData),
+		};
 	}
 
 	function resetCalibration() {
@@ -158,5 +173,5 @@ export function createMotionDetector(config = {}) {
 		};
 	}
 
-	return { start, stop, calibrate, applyCalibration, resetCalibration, getState, isRunning: () => isRunning };
+	return { start, stop, calibrate, applyCalibration, getCalibratedData, resetCalibration, getState, isRunning: () => isRunning };
 }
