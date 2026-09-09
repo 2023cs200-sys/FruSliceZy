@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { colors } from '../styles/colors';
 
 export const MotionIndicator = ({ accelerometer, gyroscope, calibrated }) => {

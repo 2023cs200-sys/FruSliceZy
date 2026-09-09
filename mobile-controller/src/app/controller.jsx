@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useMotionSensors } from '../hooks/useMotionSensors';
 import { createMotionDetector } from '../sensors/motionDetector';
@@ -15,8 +16,9 @@ export const options = {
 };
 
 export default function ControllerScreen() {
-  const [serverIp, setServerIp] = useState('');
-  const [serverPort, setServerPort] = useState('8765');
+  const { serverIp: initialServerIp, serverPort: initialServerPort } = useLocalSearchParams();
+  const [serverIp, setServerIp] = useState(initialServerIp || '');
+  const [serverPort, setServerPort] = useState(initialServerPort || '8765');
   const [isCalibrated, setIsCalibrated] = useState(false);
   const [calibrationData, setCalibrationData] = useState({ pitch: 0, roll: 0, yaw: 0 });
   const [motionStatus, setMotionStatus] = useState('READY');
@@ -24,6 +26,11 @@ export default function ControllerScreen() {
   const [isCollecting, setIsCollecting] = useState(false);
   const [samplesCollected, setSamplesCollected] = useState(0);
   const calResultRef = useRef(null);
+
+  useEffect(() => {
+    if (initialServerIp) setServerIp(String(initialServerIp));
+    if (initialServerPort) setServerPort(String(initialServerPort));
+  }, [initialServerIp, initialServerPort]);
 
   const wsUrl = `ws://${serverIp}:${serverPort}`;
 
@@ -69,14 +76,14 @@ export default function ControllerScreen() {
   }, []);
 
   useEffect(() => {
-    if (status === 'connected' && isAvailable) {
+    if (status === 'connected') {
       startUpdates();
       sendStatus('ready');
     } else {
       stopUpdates();
     }
     return () => stopUpdates();
-  }, [status, isAvailable, startUpdates, stopUpdates, sendStatus]);
+  }, [status, startUpdates, stopUpdates, sendStatus]);
 
   useEffect(() => {
     if (status === 'connected' && accelerometer && gyroscope) {
@@ -115,7 +122,7 @@ export default function ControllerScreen() {
     detector.start(handleSlash, handleMotionChange);
 
     return () => detector.stop();
-  }, [status, isAvailable]);
+  }, [status]);
 
   const handleCalibrate = useCallback(() => {
     const detector = motionDetectorRef.current;
@@ -134,19 +141,27 @@ export default function ControllerScreen() {
 
   useEffect(() => {
     if (!isCollecting || !calResultRef.current) return;
-    const result = calResultRef.current;
-    const count = result.samplesCollected();
-    setSamplesCollected(count);
-    if (count >= 20) {
-      const baseline = result.finish();
-      const offset = { pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw };
-      setCalibrationData(offset);
-      setIsCalibrated(true);
-      setIsCollecting(false);
-      setMotionStatus('READY');
-      calResultRef.current = null;
-    }
-  }, [isCollecting, samplesCollected]);
+
+    const interval = setInterval(() => {
+      const result = calResultRef.current;
+      if (!result) return;
+
+      const count = result.samplesCollected();
+      setSamplesCollected(count);
+      if (count >= 20) {
+        const baseline = result.finish();
+        const offset = { pitch: baseline.pitch, roll: baseline.roll, yaw: baseline.yaw };
+        motionDetectorRef.current?.applyCalibration();
+        setCalibrationData(offset);
+        setIsCalibrated(true);
+        setIsCollecting(false);
+        setMotionStatus('READY');
+        calResultRef.current = null;
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isCollecting]);
 
   const handleResetCalibration = useCallback(() => {
     const detector = motionDetectorRef.current;
@@ -183,7 +198,8 @@ export default function ControllerScreen() {
 	          port={serverPort}
 	          onIpChange={handleIpChange}
 	          onPortChange={handlePortChange}
-	          disabled={(!serverIp.trim() || !serverPort.trim()) && status !== 'connected'}
+            disabled={(!serverIp.trim() || !serverPort.trim()) && status !== 'connected'}
+            inputDisabled={status === 'connected'}
 	        />
       </View>
 

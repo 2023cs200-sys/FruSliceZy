@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../styles/colors';
 
-export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPortChange, disabled = false }) => {
+export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPortChange, disabled = false, inputDisabled = false }) => {
   const getStatusColor = () => {
     switch (status) {
       case 'connected': return colors.success;
@@ -33,7 +33,7 @@ export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPort
             placeholder="Enter server IP"
             keyboardType="numbers-and-punctuation"
             autoCapitalize="none"
-            editable={!disabled}
+            editable={!inputDisabled}
           />
         </View>
         <View style={styles.inputGroup}>
@@ -44,7 +44,7 @@ export const ConnectionStatus = ({ status, onPress, ip, port, onIpChange, onPort
             onChangeText={onPortChange}
             placeholder="8765"
             keyboardType="numeric"
-            editable={!disabled}
+            editable={!inputDisabled}
           />
         </View>
       </View>

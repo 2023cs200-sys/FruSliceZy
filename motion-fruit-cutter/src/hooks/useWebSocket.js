@@ -114,7 +114,7 @@ export function useWebSocket(options) {
         reconnectAttemptsRef.current = 0;
         updateStatus('connected');
 
-        ws.send(JSON.stringify({ type: 'status', status: 'ready' }));
+        ws.send(JSON.stringify({ type: 'status', status: 'ready', role }));
       };
 
       ws.onmessage = processMessage;

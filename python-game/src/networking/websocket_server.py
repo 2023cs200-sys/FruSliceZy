@@ -48,13 +48,13 @@ class WebSocketServer:
         self._running = False
         self.motion_mapper = MotionMapper()
         self.tuning_config = {
-            'sensitivity': 7.0,
-            'smoothing': 5.0,
-            'motion_threshold': 2.5,
-            'slash_threshold': 5.0,
-            'sword_speed': 15.0,
-            'rotation_sensitivity': 45.0,
-        }
+        'sensitivity': 7.0,
+        'smoothing': 5.0,
+        'motion_threshold': 2.5,
+        'slash_threshold': 1.5,
+        'sword_speed': 15.0,
+        'rotation_sensitivity': 45.0,
+    }
 
     async def start(self):
         self._running = True
@@ -202,7 +202,16 @@ class WebSocketServer:
     async def _handle_status(self, client: Client, data: Dict):
         status = data.get("status")
         if status == "ready":
-            if client.role == ClientRole.UNKNOWN:
+            requested_role = data.get("role")
+            if requested_role == ClientRole.BROWSER.value:
+                client.role = ClientRole.BROWSER
+                self.browser_client = client
+                print(f"Client {client.client_id} registered as BROWSER")
+            elif requested_role == ClientRole.CONTROLLER.value:
+                client.role = ClientRole.CONTROLLER
+                self.controller_client = client
+                print(f"Client {client.client_id} registered as CONTROLLER")
+            elif client.role == ClientRole.UNKNOWN:
                 client.role = ClientRole.CONTROLLER
                 self.controller_client = client
             client.metadata["ready"] = True

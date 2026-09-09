@@ -44,7 +44,7 @@ export default function App() {
     graphicsQuality: 'ULTRA',
     bladeStyle: 'CRIMSON',
     motionThreshold: 2.5,
-    slashThreshold: 5.0,
+    slashThreshold: 1.5,
     swordSpeed: 15.0,
     rotationSensitivity: 45.0,
   });

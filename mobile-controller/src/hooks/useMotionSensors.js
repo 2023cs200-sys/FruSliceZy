@@ -1,37 +1,33 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { createAccelerometer } from '../sensors/accelerometer';
-import { createGyroscope } from '../sensors/gyroscope';
+import { Accelerometer, Gyroscope } from 'expo-sensors';
 import { checkSensorAvailability } from '../utils/permissions';
 
 export function useMotionSensors() {
 	const [accelerometer, setAccelerometer] = useState(null);
 	const [gyroscope, setGyroscope] = useState(null);
 	const [isAvailable, setIsAvailable] = useState(true);
-	const accelInstanceRef = useRef(null);
-	const gyroInstanceRef = useRef(null);
+	const accelerometerSubscriptionRef = useRef(null);
+	const gyroscopeSubscriptionRef = useRef(null);
+	const gyroscopeHasDataRef = useRef(false);
 
 	const startUpdates = useCallback(() => {
+		if (accelerometerSubscriptionRef.current || gyroscopeSubscriptionRef.current) return;
+
 		try {
-			const accel = createAccelerometer();
-			const gyro = createGyroscope();
-			accelInstanceRef.current = accel;
-			gyroInstanceRef.current = gyro;
-
-			accel.start(
-				(data) => setAccelerometer({ x: data.x, y: data.y, z: data.z }),
-				(err) => {
-					console.error('[useMotionSensors] Accel error:', err);
-					setIsAvailable(false);
+			Accelerometer.setUpdateInterval(50);
+			Gyroscope.setUpdateInterval(50);
+			accelerometerSubscriptionRef.current = Accelerometer.addListener((data) => {
+				setAccelerometer({ x: data.x, y: data.y, z: data.z });
+				if (!gyroscopeHasDataRef.current) {
+					setGyroscope({ x: data.y, y: -data.x, z: 0 });
 				}
-			);
-
-			gyro.start(
-				() => {},
-				(err) => {
-					console.error('[useMotionSensors] Gyro error:', err);
-					setIsAvailable(false);
+			});
+			gyroscopeSubscriptionRef.current = Gyroscope.addListener((data) => {
+				if (Math.abs(data.x) > 0.001 || Math.abs(data.y) > 0.001 || Math.abs(data.z) > 0.001) {
+					gyroscopeHasDataRef.current = true;
 				}
-			);
+				setGyroscope({ x: data.x, y: data.y, z: data.z });
+			});
 
 			setIsAvailable(true);
 		} catch (error) {
@@ -41,25 +37,33 @@ export function useMotionSensors() {
 	}, []);
 
 	const stopUpdates = useCallback(() => {
-		if (accelInstanceRef.current) {
-			accelInstanceRef.current.stop();
-			accelInstanceRef.current = null;
+		if (accelerometerSubscriptionRef.current) {
+			accelerometerSubscriptionRef.current.remove();
+			accelerometerSubscriptionRef.current = null;
 		}
-		if (gyroInstanceRef.current) {
-			gyroInstanceRef.current.stop();
-			gyroInstanceRef.current = null;
+		if (gyroscopeSubscriptionRef.current) {
+			gyroscopeSubscriptionRef.current.remove();
+			gyroscopeSubscriptionRef.current = null;
 		}
+		gyroscopeHasDataRef.current = false;
 		setAccelerometer(null);
 		setGyroscope(null);
 	}, []);
 
 	useEffect(() => {
-		checkSensorAvailability().then((result) => {
-			setIsAvailable(result.available);
-		});
-		startUpdates();
+		let cancelled = false;
+
+		const initializeSensors = async () => {
+			const availabilityResult = await checkSensorAvailability();
+			if (!cancelled) {
+				setIsAvailable(availabilityResult.available);
+			}
+		};
+
+		initializeSensors();
+
 		return () => stopUpdates();
-	}, [startUpdates, stopUpdates]);
+	}, [stopUpdates]);
 
 	return { accelerometer, gyroscope, startUpdates, stopUpdates, isAvailable };
 }

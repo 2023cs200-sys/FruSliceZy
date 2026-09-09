@@ -88,7 +88,10 @@ export default function ConnectScreen() {
 				<View style={styles.navigateContainer}>
 					<ControlButton
 						title="OPEN CONTROLLER"
-						onPress={() => router.replace('/controller')}
+						onPress={() => router.replace({
+							pathname: '/controller',
+							params: { serverIp, serverPort },
+						})}
 						variant="primary"
 						icon="wifi"
 					/>
