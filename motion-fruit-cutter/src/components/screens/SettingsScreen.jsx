@@ -115,7 +115,7 @@ export const SettingsScreen = ({ settings, onUpdateSettings, onNavigate }) => {
               </div>
               <span className="font-mono text-sm font-bold text-cyan-300">{settings.motionThreshold.toFixed(1)}</span>
             </div>
-            <input type="range" min={1} max={10} step={0.5} value={settings.motionThreshold} onChange={(e) => onUpdateSettings({ motionThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+            <input type="range" min={0.5} max={10} step={0.1} value={settings.motionThreshold} onChange={(e) => onUpdateSettings({ motionThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">
@@ -126,7 +126,7 @@ export const SettingsScreen = ({ settings, onUpdateSettings, onNavigate }) => {
               </div>
               <span className="font-mono text-sm font-bold text-cyan-300">{settings.slashThreshold.toFixed(1)}</span>
             </div>
-            <input type="range" min={2} max={10} step={0.5} value={settings.slashThreshold} onChange={(e) => onUpdateSettings({ slashThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
+            <input type="range" min={1} max={10} step={0.1} value={settings.slashThreshold} onChange={(e) => onUpdateSettings({ slashThreshold: Number(e.target.value) })} className="w-full accent-cyan-400 cursor-pointer" />
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex flex-col gap-2">

@@ -7,7 +7,6 @@
     "scheme": "fruslicezycontroller",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0d0a1f",
-    "newArchEnabled": true,
     "platforms": [
       "ios",
       "android"
@@ -16,8 +15,7 @@
       "supportsTablet": false
     },
     "android": {
-      "package": "com.fruslicezy.controller",
-      "edgeToEdgeEnabled": true
+      "package": "com.fruslicezy.controller"
     },
     "plugins": [
       "expo-router",
@@ -27,7 +25,8 @@
           "motionPermission": "Allow $(PRODUCT_NAME) to access device motion to control the game sword."
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-font"
     ]
   }
 }

@@ -10,7 +10,7 @@ class MotionMapper:
         'sensitivity': 7.0,
         'smoothing': 5.0,
         'motion_threshold': 2.5,
-        'slash_threshold': 5.0,
+        'slash_threshold': 1.5,
         'sword_speed': 15.0,
         'rotation_sensitivity': 45.0,
         'max_x': 1.0,
@@ -21,7 +21,8 @@ class MotionMapper:
 
     def __init__(self, config=None):
         self.config = {**self.DEFAULT_CONFIG, **(config or {})}
-        self.accel_buffer = deque(maxlen=self.config['filter_window'])
+        self.accel_x_buffer = deque(maxlen=self.config['filter_window'])
+        self.accel_y_buffer = deque(maxlen=self.config['filter_window'])
         self.gyro_buffer = deque(maxlen=self.config['filter_window'])
         self.last_motion_time = 0
         self.last_slash_time = 0
@@ -40,7 +41,8 @@ class MotionMapper:
     def reset_calibration(self):
         self.is_calibrated = False
         self.calibration_offset = {'x': 0, 'y': 0, 'z': 0}
-        self.accel_buffer.clear()
+        self.accel_x_buffer.clear()
+        self.accel_y_buffer.clear()
         self.gyro_buffer.clear()
 
     def _apply_deadzone(self, value):
@@ -70,9 +72,9 @@ class MotionMapper:
         return True, self._determine_slash_direction()
 
     def _determine_slash_direction(self):
-        if not self.accel_buffer:
+        if not self.accel_x_buffer:
             return 'NONE'
-        avg_x = sum(self.accel_buffer) / len(self.accel_buffer)
+        avg_x = sum(self.accel_x_buffer) / len(self.accel_x_buffer)
         avg_y = sum(self.gyro_buffer) / len(self.gyro_buffer) if self.gyro_buffer else 0
         if abs(avg_x) > abs(avg_y):
             return 'LEFT' if avg_x < 0 else 'RIGHT'
@@ -119,8 +121,8 @@ class MotionMapper:
         gyro_y = self._apply_deadzone(gyro_y)
         gyro_z = self._apply_deadzone(gyro_z)
 
-        smoothed_accel_x = self._smooth(accel_x, self.accel_buffer)
-        smoothed_accel_y = self._smooth(accel_y, self.accel_buffer)
+        smoothed_accel_x = self._smooth(accel_x, self.accel_x_buffer)
+        smoothed_accel_y = self._smooth(accel_y, self.accel_y_buffer)
         smoothed_gyro_z = self._smooth(gyro_z, self.gyro_buffer)
 
         magnitude = self._calculate_magnitude(accel_x, accel_y, accel_z)
@@ -162,8 +164,14 @@ class MotionMapper:
         }
 
     def update_config(self, config):
+        previous_filter_window = self.config['filter_window']
+        changed = False
         for key, value in config.items():
             if key in self.config:
-                self.config[key] = value
-        self.accel_buffer = deque(maxlen=self.config['filter_window'])
-        self.gyro_buffer = deque(maxlen=self.config['filter_window'])
+                if self.config[key] != value:
+                    self.config[key] = value
+                    changed = True
+        if changed and previous_filter_window != self.config['filter_window']:
+            self.accel_x_buffer = deque(maxlen=self.config['filter_window'])
+            self.accel_y_buffer = deque(maxlen=self.config['filter_window'])
+            self.gyro_buffer = deque(maxlen=self.config['filter_window'])

@@ -14,6 +14,7 @@ export class ConnectionManager {
 			onError: config.onError || (() => {}),
 			reconnectInterval: config.reconnectInterval ?? 3000,
 			maxReconnectAttempts: config.maxReconnectAttempts ?? 10,
+			role: config.role || 'controller',
 		};
 	}
 
@@ -31,7 +32,7 @@ export class ConnectionManager {
 				this.reconnectAttempts = 0;
 				this.setStatus('connected');
 				this.flushMessageQueue();
-				this.sendStatus('ready');
+				this.sendStatus('ready', this.config.role);
 			};
 
 			this.ws.onmessage = (event) => {
@@ -118,8 +119,8 @@ export class ConnectionManager {
 		this.send({ type: MESSAGE_TYPES.PING });
 	}
 
-	sendStatus(status) {
-		this.send({ type: MESSAGE_TYPES.STATUS, status });
+	sendStatus(status, role = this.config.role) {
+		this.send({ type: MESSAGE_TYPES.STATUS, status, role });
 	}
 
 	disconnect() {

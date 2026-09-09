@@ -10,6 +10,7 @@ export function useWebSocket(options) {
 		onError,
 		reconnectInterval = 3000,
 		maxReconnectAttempts = 10,
+		role = 'controller',
 	} = options;
 	const [status, setStatus] = useState('disconnected');
 	const [lastMessage, setLastMessage] = useState(null);
@@ -83,6 +84,7 @@ export function useWebSocket(options) {
 			onError: handleError,
 			reconnectInterval: reconnectIntervalRef.current,
 			maxReconnectAttempts: maxReconnectAttemptsRef.current,
+			role,
 		});
 		managerRef.current = manager;
 		manager.connect();
