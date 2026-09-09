@@ -87,8 +87,9 @@ The application should:
 ## Current Persistence Status
 
 No backend persistence files are currently used. The browser prototype keeps
-high scores and settings in React state for
-the current page session only; it does not use `localStorage` or a database.
+scores and settings in React state for the current page session only; it does
+not use `localStorage` or a database. There is no high-score screen in the
+current UI.
 
 The JSON examples above are a future storage contract. Persistence should be
 implemented only after the runtime ownership of scores and settings is

@@ -18,8 +18,7 @@
 | TC14 | Pause | Press pause | Game objects stop |
 | TC15 | Resume | Resume game | Gameplay continues |
 | TC16 | Game over | Reach time/loss condition | Results screen appears |
-| TC17 | Save score | Finish a high-scoring game | Score is saved |
-| TC18 | Load scores | Restart game | Saved high scores are available |
+| TC17 | Session score | Finish a game | Final score appears in the game-over screen |
 | TC19 | Disconnect phone | Close controller app | Game handles disconnect gracefully |
 | TC20 | Reconnect | Reopen controller and connect | Controller can reconnect |
 | TC21 | Invalid message | Send malformed WebSocket data | Server does not crash |
@@ -38,7 +37,6 @@ prototype currently provides the practical path for TC09-TC16, TC22, and
 parts of TC23-TC24 using mouse or touch input. TC01 is partially available
 through the Expo home screen.
 
-TC02-TC08, TC17-TC21, and TC26-TC28 depend on mobile sensors, persistence,
-LAN protocol handling, or client integration and are currently
-planned, blocked, or not implemented. Add an execution result and environment
-to this table when those capabilities are delivered.
+TC02-TC08, TC19-TC21, and TC26-TC28 depend on mobile sensors, LAN protocol
+handling, or client integration and should be executed on a physical phone and
+same-network laptop. Persistence tests are out of the current scope.

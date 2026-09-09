@@ -99,9 +99,9 @@ If the phone cannot reach the laptop despite using the correct IP, check whether
 
 ## Current Implementation Notes
 
-The phone connection and motion-detection sections describe planned
-functionality. The Expo connection/controller screens are placeholders, while
-the Python backend listens on `0.0.0.0:8765`.
+The Python backend listens on `0.0.0.0:8765` and relays motion between one
+mobile controller and one browser client. The browser also supports mouse-only
+play without the backend.
 
 If `python main.py` fails, confirm that port `8765` is free and that the
 `websockets` package is installed in the active environment.

@@ -94,26 +94,11 @@ During pause:
 - Score remains unchanged.
 - Sensor actions do not trigger gameplay events.
 
-## 9. High Scores
-
-The game stores the player's best scores locally.
-
-A high-score record may contain:
-
-```json
-{
-  "score": 850,
-  "combo": 12,
-  "difficulty": 4,
-  "date": "2026-08-27"
-}
-```
-
 ## Implementation Status
 
 The mechanics above are the target game design. The browser prototype
 implements fruit and bomb spawning, slicing, split visuals, particles, a
-60-second round, pause/game-over flow, combos, and in-memory high scores. In
+60-second round, pause/game-over flow, combos, and in-memory session scores. In
 that prototype, hitting a bomb subtracts 50 points and resets the current
 combo; slices within roughly 400 ms build a combo.
 

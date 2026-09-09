@@ -38,7 +38,8 @@ Start the Expo development server:
 npx expo start
 ```
 
-Open the project using Expo Go on the smartphone.
+Open the project using Expo Go on a physical smartphone. The phone and laptop
+must use the same Wi-Fi network.
 
 ## 4. Python WebSocket Backend Setup
 
@@ -116,9 +117,18 @@ Press Connect.
 
 Hold the phone in a comfortable starting position and press Calibrate.
 
-## 9. Start Playing
+## 9. Start the Browser Game
 
-After the controller shows a successful connection:
+Start the browser client in a third terminal:
+
+```bash
+cd motion-fruit-cutter
+npm install
+npm run dev
+```
+
+Open the Vite URL, then choose **WITH CONTROLLER**. After the controller shows
+a successful connection:
 
 1. Start the game.
 2. Move the phone like a sword.
@@ -126,20 +136,7 @@ After the controller shows a successful connection:
 4. Avoid bombs.
 5. Build combos.
 
-## Current Installation Scope
+## Mouse-Only Play
 
-The browser prototype is the supported runnable experience:
-
-```powershell
-cd motion-fruit-cutter
-npm install
-npm run dev
-```
-
-The mobile app currently launches its Expo routes, but its connection and
-controller screens are placeholders. Do not expect the phone to connect to
-the Python server yet.
-
-The Python backend listens on `0.0.0.0:8765` and relays JSON messages between
-the Expo controller and browser. The client integrations and calibration flow
-are still under development.
+To play without a phone, choose **WITHOUT CONTROLLER** from the browser's Play
+button. Mouse and touch slicing work without the Python backend.

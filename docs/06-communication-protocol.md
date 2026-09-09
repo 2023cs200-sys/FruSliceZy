@@ -61,14 +61,18 @@ Messages use JSON.
 }
 ```
 
-### Controller Status
+### Client Status
 
 ```json
 {
   "type": "status",
-  "status": "ready"
+  "status": "ready",
+  "role": "controller"
 }
 ```
+
+The browser sends `"role": "browser"`. Explicit roles allow the server to
+relay motion to the browser and game-state messages to the controller.
 
 ## 4. Server Responses
 
@@ -111,30 +115,7 @@ The protocol should prioritize:
 
 ## Python Backend Contract
 
-The Python backend listens on `ws://0.0.0.0:8765`; it does not use the
-documented configurable laptop IP/port flow. For each connected client it
-sends messages shaped like:
-
-```json
-{
-  "type": "state",
-  "state": {
-    "score": 0,
-    "combo": 0,
-    "time_left": 60.0,
-    "fruits": []
-  }
-}
-```
-
-Incoming JSON is inspected for `type`. Only `slice` is recognized, and its
-handler is currently a no-op. `motion`, `calibrate`, `ping`, and `status` are
-planned messages, not implemented messages. Malformed JSON and missing fields
-are not yet validated robustly, so this protocol must not be treated as a
-production network contract.
-
-## Selected Browser Protocol
-
-The browser prototype currently has no WebSocket connection. The production
-clients should connect to the Python backend, with motion messages relayed to
-the browser and game state remaining inside the React application.
+The Python backend listens on `ws://0.0.0.0:8765` and supports one controller
+and one browser client. It validates JSON and sensor axes, maps motion through
+`MotionMapper`, relays motion to the browser, and acknowledges handled
+messages. It also relays browser game-state messages to the controller.

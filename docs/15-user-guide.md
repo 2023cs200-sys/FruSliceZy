@@ -2,7 +2,8 @@
 
 ## 1. Introduction
 
-This guide explains how to play FruSliceZy using a smartphone as the controller.
+This guide explains how to play FruSliceZy with either mouse/touch input or a
+smartphone motion controller.
 
 ## 2. Before Playing
 
@@ -13,7 +14,15 @@ Make sure:
 - The smartphone has accelerometer and gyroscope sensors.
 - The mobile controller is running in Expo Go.
 
-## 3. Connect the Controller
+## 3. Choose a Play Mode
+
+From the browser main menu or How To Play screen, select **PLAY** or **PLAY
+NOW**, then choose one of these modes:
+
+- **WITHOUT CONTROLLER**: starts mouse/touch gameplay immediately.
+- **WITH CONTROLLER**: opens the connection and calibration flow.
+
+## 4. Connect the Controller
 
 1. Open the mobile controller.
 2. Enter the laptop's IP address.
@@ -21,7 +30,7 @@ Make sure:
 4. Press Connect.
 5. Wait for the connected status.
 
-## 4. Calibrate
+## 5. Calibrate
 
 Hold the smartphone still in your preferred starting position.
 
@@ -29,7 +38,7 @@ Press the Calibrate button.
 
 Wait until the application confirms calibration.
 
-## 5. Playing the Game
+## 6. Playing the Game
 
 The smartphone acts as a virtual sword.
 
@@ -37,25 +46,25 @@ Move the phone quickly in the desired direction to create a slash.
 
 Cut fruits to earn points.
 
-## 6. Avoid Bombs
+## 7. Avoid Bombs
 
 Do not slash bombs.
 
 Hitting a bomb can reduce your score or reset your combo depending on the configured game rules.
 
-## 7. Combos
+## 8. Combos
 
 Cut fruits continuously without hitting bombs to increase your combo.
 
 Higher combos can produce higher scores.
 
-## 8. Difficulty
+## 9. Difficulty
 
 The game becomes harder as the round progresses.
 
 Objects may move faster and appear more frequently.
 
-## 9. Game Over
+## 10. Game Over
 
 When the round ends, the game displays:
 
@@ -65,7 +74,7 @@ When the round ends, the game displays:
 - Bombs hit
 - Difficulty reached
 
-## 10. Tips
+## 11. Tips
 
 - Hold the phone securely.
 - Keep enough space around you.
@@ -73,16 +82,9 @@ When the round ends, the game displays:
 - Use controlled movements.
 - Avoid extremely aggressive movements.
 
-## Browser Prototype
+## Browser Controls
 
-The currently playable version runs in `motion-fruit-cutter`. Start it with
-`npm run dev`, choose Start from the main menu, and drag or swipe across the
-play area to slice fruit. Avoid bombs: they reduce the score by 50 and reset
-the current combo. The round lasts 60 seconds. Scores and settings are kept
-only for the current browser session.
-
-## Phone Controller Status
-
-The phone instructions above describe the planned experience. The Expo
-connection, sensor, calibration, and WebSocket flow is not implemented yet,
-so a phone cannot currently control the browser prototype.
+The browser client runs in `motion-fruit-cutter`. In mouse mode, drag or swipe
+across the play area to slice fruit. Avoid bombs: they reduce the score by 50
+and reset the current combo. The round lasts 60 seconds. Scores and settings
+are kept only for the current browser session.

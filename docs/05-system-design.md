@@ -22,12 +22,12 @@ Displays connection status, calibration controls, motion status, and basic instr
 ## 2. Browser Game Design
 
 ### Browser Network Adapter
-Will receive motion-controller messages and pass normalized events to the
-browser game. This adapter is not implemented yet.
+Receives motion-controller messages and passes normalized events to the
+browser game through `motion-fruit-cutter/src/hooks/useWebSocket.js`.
 
 ### Motion Mapper
-Converts phone movement data into browser sword position, rotation, and slash
-direction. This is a planned browser module.
+The Python `MotionMapper` converts phone movement data into browser sword
+position, rotation, and slash direction.
 
 ### Game Manager
 Controls the main game state and game loop in `motion-fruit-cutter/src/App.jsx`.
@@ -45,7 +45,7 @@ Handles the slash trail, fruit-split animation, juice particles, and explosion
 effects in the canvas game.
 
 ### Score Manager
-Calculates points, combos, penalties, and in-memory high scores in `App.jsx`.
+Calculates points, combos, penalties, and in-memory session scores in `App.jsx`.
 
 ### Audio Manager
 Controls browser sound effects through `utils/sound.js`.
@@ -97,6 +97,6 @@ foundation maps game orchestration to `src/game/game.py`, collision to
 score/combo logic to `src/scoring/`.
 
 The mobile sensor, calibration, networking, audio-manager, and UI-manager
-responsibilities in the design above are planned boundaries. The corresponding
-mobile hooks/modules are currently empty or placeholder-only, and several
-named Python UI/object modules do not exist yet.
+responsibilities are split across the current Expo hooks, sensor modules, and
+components. Python owns relay and motion mapping; browser React owns gameplay
+and rendering.

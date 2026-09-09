@@ -8,7 +8,7 @@ and the browser as the game host.
 
 | Directory | Purpose | Technology |
 | --- | --- | --- |
-| `motion-fruit-cutter` | Primary game client with menus, HUD, fruit spawning, slicing, combos, bombs, effects, sound, and high scores | React, Vite |
+| `motion-fruit-cutter` | Primary game client with menus, HUD, fruit spawning, slicing, combos, bombs, effects, sound, and controller/mouse play modes | React, Vite |
 | `mobile-controller` | Phone-only motion controller; sends sensor events to the browser game | React Native, Expo |
 | `python-game` | Python WebSocket backend that relays controller messages between the phone and browser | Python, websockets |
 | `docs` | Requirements, architecture, protocol, design, testing, and operations documentation | Markdown |
@@ -24,9 +24,9 @@ npm run dev
 ```
 
 Open the local URL printed by Vite, normally `http://localhost:3000`.
-The browser prototype uses mouse or touch input for slicing and does not need
-an API key, a Python server, or a `.env.local` file. Phone control will use a
-browser-facing WebSocket connection when the mobile integration is completed.
+Choose **WITH CONTROLLER** for phone control or **WITHOUT CONTROLLER** for
+mouse/touch play. Controller mode requires the Python WebSocket backend and a
+phone and laptop on the same Wi-Fi network.
 
 Other web commands:
 
@@ -46,10 +46,10 @@ npm install
 npm start
 ```
 
-Use the Expo CLI prompts or scan the QR code with Expo Go. The current app
-provides the home, connection, controller, and settings routes. The
-connection and controller screens are placeholders while the sensor and
-WebSocket integration is being completed.
+Use the Expo CLI prompts or scan the QR code with Expo Go. The app provides
+home, connection, controller, and settings routes. Use a physical Android or
+iOS device for sensor testing; emulators do not provide the phone motion data
+required by the controller.
 
 ## Quick Start: Python WebSocket Backend
 
@@ -64,8 +64,9 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-The backend relays JSON messages between connected Expo and browser clients.
-It does not render the game.
+The backend relays JSON messages between one Expo controller and one browser
+client, and maps sensor data to sword position, rotation, slash state, and
+direction. It does not render the game.
 
 The server listens on all network interfaces at port `8765`. Use the laptop's
 local IP address from the mobile controller, for example
@@ -73,8 +74,15 @@ local IP address from the mobile controller, for example
 
 ## Testing
 
-The current backend has no automated test suite. Browser and mobile tests
-should be added alongside the controller integration.
+Run the WebSocket integration check from `python-game` while no other server
+is using port `8765`:
+
+```powershell
+python test_client.py
+```
+
+Build the browser client with `npm run build`. Validate the mobile bundle with
+`npx expo export --platform android`.
 
 ## Architecture
 
@@ -98,5 +106,7 @@ focused documentation in `docs/`, especially:
 
 ## Current Status
 
-The browser experience is the primary game. The Expo app's sensor and
-WebSocket integration is still incomplete. Python is the selected backend.
+The browser supports mouse/touch play and phone-controller play. The Expo app
+sends motion data through the Python WebSocket relay, and the browser maps the
+relayed sword position into the canvas game. Scores remain in memory for the
+active browser session; there is no persistent score store.

@@ -100,8 +100,7 @@ The project is considered successful when:
 ## Coverage Status
 
 The previous Python game tests were removed with the Ursina game modules. The
-current backend and browser/mobile integration do not yet have an automated
-test suite.
+current backend and browser/mobile integration have limited automated coverage.
 
 There are currently no automated mobile sensor tests, WebSocket protocol
 tests, persistence tests, or phone-to-browser integration tests. Browser

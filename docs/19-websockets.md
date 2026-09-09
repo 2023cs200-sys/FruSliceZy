@@ -98,7 +98,8 @@ The Python backend is a relay and motion-processing boundary. It does not render
 
 ### Client roles
 
-The backend assigns a logical role to a client based on the messages it sends:
+Each JavaScript client explicitly identifies its role in the initial ready
+status message:
 
 - `CONTROLLER`: normally the mobile controller that sends motion data.
 - `BROWSER`: normally the game browser that sends game-state messages.
@@ -147,11 +148,14 @@ A client sends `ready` after opening its connection:
 ```json
 {
   "type": "status",
-  "status": "ready"
+  "status": "ready",
+  "role": "controller"
 }
 ```
 
-The server uses this message to mark an otherwise unknown client as a controller.
+The browser sends the same message with `"role": "browser"`. The server uses
+the role to register the correct peer before motion or game-state messages
+arrive. A status message without a role retains the legacy controller default.
 
 ### 4.3 Motion message
 
@@ -191,10 +195,10 @@ The server validates the three axes, maps the motion to sword data, and relays t
     "z": -0.3
   },
   "sword_position": { "x": 0.0, "y": 0.0 },
-  "sword_rotation": 0.0,
+  "sword_rotation": { "z": 0.0 },
   "motion_magnitude": 3.2,
   "is_slashing": false,
-  "slash_direction": null,
+  "slash_direction": "NONE",
   "calibrated": true
 }
 ```
@@ -236,7 +240,7 @@ Motion behavior can be adjusted by sending a configuration object:
     "sensitivity": 7.0,
     "smoothing": 5.0,
     "motion_threshold": 2.5,
-    "slash_threshold": 5.0,
+    "slash_threshold": 1.5,
     "sword_speed": 15.0,
     "rotation_sensitivity": 45.0
   }
@@ -313,10 +317,11 @@ The Python server follows this general flow:
 4. Read messages until the socket closes.
 5. Parse and validate each JSON message.
 6. Dispatch by `type`.
-7. Process motion or calibration data when needed.
-8. Relay relevant data to the peer client.
-9. Send an `ack` or `error` response.
-10. Remove the client and notify the remaining peer on disconnect.
+7. Register explicit `controller` or `browser` roles from ready status.
+8. Process motion or calibration data when needed.
+9. Relay relevant data to the peer client.
+10. Send an `ack` or `error` response.
+11. Remove the client and notify the remaining peer on disconnect.
 
 The server uses the `websockets` Python package and asynchronous functions so multiple clients can be served without blocking the event loop during network operations.
 
@@ -343,7 +348,8 @@ Both JavaScript clients expose a WebSocket hook. Their common behavior is:
 - Create a WebSocket using the configured URL.
 - Set status to `connecting`.
 - Set status to `connected` after the open event.
-- Send `{ "type": "status", "status": "ready" }`.
+- Send `{ "type": "status", "status": "ready", "role": "controller" }` or
+  the equivalent browser role.
 - Parse incoming JSON messages.
 - Route messages to motion, game-state, error, or connection callbacks.
 - Queue outgoing messages while disconnected.
@@ -469,7 +475,10 @@ Encryption protects data in transit, but it does not replace validation or autho
 
 ## 11. Current Project Status
 
-The Python WebSocket backend and client connection helpers implement the core relay path. The browser prototype still supports local mouse or touch gameplay, and browser WebSocket integration is not yet fully wired into the production game flow.
+The Python WebSocket backend and client connection helpers implement the core
+relay path. The browser supports local mouse/touch gameplay and phone-controller
+gameplay through the browser WebSocket client. Controller mode is selected from
+the Play or How To Play flow and includes connection and calibration steps.
 
 The protocol should therefore be treated as an evolving development contract. When message fields or roles change, update the server, mobile client, browser client, tests, and protocol documentation together.
 

@@ -7,7 +7,7 @@ used as a wireless game controller. The selected production architecture uses
 the browser as the game host; the player moves the smartphone like a sword,
 while the phone's accelerometer and gyroscope detect movement and rotation.
 
-The detected motion will be transmitted over a local Wi-Fi network to the
+The detected motion is transmitted over a local Wi-Fi network to the
 Python WebSocket backend. The backend relays controller messages to the
 browser game, which converts them into virtual sword slashes.
 
@@ -46,7 +46,7 @@ The main goal is to create an interactive game that combines mobile sensor techn
 ### Browser Game
 - React and Vite
 - 2D canvas rendering
-- Mouse/touch input, with phone motion planned
+- Mouse/touch input and phone motion control
 
 ### Python Backend
 - Python
@@ -70,9 +70,8 @@ gameplay once the applications are available locally.
 The browser prototype in `motion-fruit-cutter` is the primary playable
 application. It is a 2D React/Vite canvas game controlled by mouse or touch.
 
-The Expo app in `mobile-controller` is a routed shell. Its connection,
-controller, sensor, calibration, and WebSocket modules are not implemented.
-The Python project contains game logic, tests, and a WebSocket server
-foundation, but it is not an end-to-end desktop game and has missing module
-imports. The phone-to-browser flow through the Python WebSocket backend is the
-selected target design. Ursina and Python 3D rendering are not required.
+The Expo app in `mobile-controller` provides connection, controller, sensor,
+calibration, and WebSocket flows. The Python project provides the WebSocket
+relay and motion mapper; it is not an end-to-end desktop renderer. The
+browser owns gameplay and supports both mouse/touch and phone-controller play.
+Ursina and Python 3D rendering are not required.

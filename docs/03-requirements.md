@@ -31,7 +31,7 @@
 - The game shall provide sound effects.
 - The game shall display visual effects for slashes, cuts, and explosions.
 - The game shall display game-over results.
-- The game shall store high scores.
+- The game shall maintain score information for the active browser session.
 
 ## 2. Non-Functional Requirements
 
@@ -66,17 +66,18 @@
 - Expo Go
 - Python 3 is required for the WebSocket backend.
 - Ursina is not required.
-- A browser-compatible WebSocket host is required for future phone control.
+- A browser-compatible WebSocket client is required for phone control.
 
 ## Requirement Status
 
-The requirements describe the target system, not a completed implementation.
+The requirements below describe the current implementation scope.
 
 | Area | Current status |
 | --- | --- |
 | Browser fruit-cutting prototype | Implemented as a React/Vite 2D canvas game with mouse/touch input |
-| Mobile routes and Expo shell | Partially implemented; connection and controller screens are placeholders |
-| Mobile sensors, calibration, and WebSocket client | Planned; source modules are empty |
-| Python game modules and unit tests | Partially implemented; missing imports currently block a complete runtime/test suite |
-| Python WebSocket state server | Partially implemented on `localhost:8765`; incoming `slice` handling is a no-op |
-| LAN phone control, 3D runtime, persistence, and dynamic difficulty | Not implemented |
+| Mobile routes and Expo shell | Implemented with connection, controller, settings, and calibration flows |
+| Mobile sensors, calibration, and WebSocket client | Implemented with Expo Sensors and reconnecting WebSocket logic |
+| Python game modules and unit tests | Motion mapper and WebSocket relay implemented; automated coverage remains limited |
+| Python WebSocket relay | Implemented on `0.0.0.0:8765` with controller/browser roles and motion relay |
+| LAN phone control | Implemented for one phone and one browser on the same network |
+| 3D runtime and persistent scores | Out of current scope |
