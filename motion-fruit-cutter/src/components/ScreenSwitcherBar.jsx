@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Layers, Play, Menu as MenuIcon, Wifi, Compass, HelpCircle, Trophy,
+  Layers, Play, Menu as MenuIcon, Wifi, Compass, HelpCircle,
   Settings as SettingsIcon, Pause, RotateCcw, Sparkles, ShieldAlert, Flame,
   ChevronDown, ChevronUp,
 } from 'lucide-react';
@@ -18,7 +18,6 @@ export const ScreenSwitcherBar = ({
     { id: 'CONNECT', label: '3. Connect', icon: Wifi },
     { id: 'CALIBRATE', label: '4. Calibrate', icon: Compass },
     { id: 'HOW_TO_PLAY', label: '5. Tutorial', icon: HelpCircle },
-    { id: 'HIGH_SCORES', label: '8. High Scores', icon: Trophy },
     { id: 'SETTINGS', label: '9. Settings', icon: SettingsIcon },
   ];
 

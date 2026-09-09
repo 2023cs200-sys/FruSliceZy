@@ -1,13 +1,25 @@
-import React from 'react';
-import { Play, BookOpen, Trophy, Settings, Smartphone, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, BookOpen, Trophy, Settings, Smartphone, Zap, MousePointer2, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { sound } from '../../utils/sound.js';
 
-export const MainMenu = ({ onNavigate, bestScore }) => {
+export const MainMenu = ({ onNavigate, onStartGame, bestScore }) => {
+  const [showPlayOptions, setShowPlayOptions] = useState(false);
+
   const handlePlayClick = () => {
     sound.playButton();
+    setShowPlayOptions(true);
+  };
+
+  const handlePlayMode = (mode) => {
+    sound.playButton();
     sound.playSlice(2);
-    onNavigate('GAMEPLAY');
+    setShowPlayOptions(false);
+    if (mode === 'controller') {
+      onNavigate('CONNECT');
+    } else {
+      onStartGame();
+    }
   };
 
   const handleNav = (screen) => {
@@ -133,6 +145,46 @@ export const MainMenu = ({ onNavigate, bestScore }) => {
         </motion.div>
       </div>
 
+      {showPlayOptions && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#05070b]/75 backdrop-blur-sm p-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-xl rounded-3xl border border-amber-400/40 bg-[#12141c]/95 p-6 sm:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.7)]"
+          >
+            <button
+              onClick={() => setShowPlayOptions(false)}
+              aria-label="Close play options"
+              className="absolute right-4 top-4 rounded-full border border-white/10 bg-white/5 p-2 text-slate-400 transition-colors hover:text-white cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="text-center">
+              <h2 className="font-arcade text-2xl sm:text-3xl tracking-wider text-amber-300">CHOOSE YOUR CONTROLLER</h2>
+              <p className="mt-2 text-sm text-slate-400">Select how you want to slice the fruit.</p>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <button
+                onClick={() => handlePlayMode('controller')}
+                className="group rounded-2xl border-2 border-emerald-400/50 bg-emerald-950/40 p-5 text-left transition-all hover:border-emerald-300 hover:bg-emerald-900/50 active:scale-95 cursor-pointer"
+              >
+                <Smartphone className="h-8 w-8 text-emerald-300 transition-transform group-hover:-rotate-6" />
+                <span className="mt-4 block font-arcade text-lg tracking-wider text-white">WITH CONTROLLER</span>
+                <span className="mt-2 block text-sm text-emerald-100/70">Connect and calibrate your phone before playing.</span>
+              </button>
+              <button
+                onClick={() => handlePlayMode('mouse')}
+                className="group rounded-2xl border-2 border-cyan-400/50 bg-cyan-950/40 p-5 text-left transition-all hover:border-cyan-300 hover:bg-cyan-900/50 active:scale-95 cursor-pointer"
+              >
+                <MousePointer2 className="h-8 w-8 text-cyan-300 transition-transform group-hover:scale-110" />
+                <span className="mt-4 block font-arcade text-lg tracking-wider text-white">WITHOUT CONTROLLER</span>
+                <span className="mt-2 block text-sm text-cyan-100/70">Use your mouse to move and slice.</span>
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* BOTTOM BUTTONS */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
@@ -156,15 +208,6 @@ export const MainMenu = ({ onNavigate, bestScore }) => {
         >
           <BookOpen className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
           <span className="font-arcade text-base sm:text-lg tracking-wider">HOW TO PLAY</span>
-        </button>
-
-        <button
-          id="main-menu-high-scores-btn"
-          onClick={() => handleNav('HIGH_SCORES')}
-          className="flex-1 min-w-[140px] flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl bg-[#12141c]/90 hover:bg-[#1c1f2e] backdrop-blur-md border border-white/10 hover:border-amber-400/50 text-white transition-all shadow-lg active:scale-95 cursor-pointer group"
-        >
-          <Trophy className="w-5 h-5 text-[#ffcc00] group-hover:scale-110 transition-transform" />
-          <span className="font-arcade text-base sm:text-lg tracking-wider">HIGH SCORES</span>
         </button>
 
         <button

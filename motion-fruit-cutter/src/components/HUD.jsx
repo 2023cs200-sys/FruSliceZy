@@ -116,10 +116,8 @@ export const HUD = ({ stats, onPause, soundEnabled, onToggleSound, bombAlert }) 
       {/* BOTTOM ROW */}
       <div id="hud-bottom-bar" className="flex items-end justify-between w-full">
         <div id="hud-level-badge" className="pointer-events-auto flex flex-col gap-1">
-          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Arena</div>
           <div className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <span>ZEN GARDEN</span>
-            <span className="text-blue-500 font-black">Lvl 04</span>
+
           </div>
           <div className="flex items-center gap-3 mt-1">
             <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { INITIAL_HIGH_SCORES } from './data/fruits.js';
 import { sound } from './utils/sound.js';
 import { useWebSocket } from './hooks/useWebSocket.js';
 
@@ -12,14 +11,10 @@ import { CalibrationScreen } from './components/screens/CalibrationScreen.jsx';
 import { HowToPlayScreen } from './components/screens/HowToPlayScreen.jsx';
 import { PauseOverlay } from './components/screens/PauseOverlay.jsx';
 import { GameOverScreen } from './components/screens/GameOverScreen.jsx';
-import { HighScoresScreen } from './components/screens/HighScoresScreen.jsx';
 import { SettingsScreen } from './components/screens/SettingsScreen.jsx';
-import { ScreenSwitcherBar } from './components/ScreenSwitcherBar.jsx';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('MAIN_MENU');
-  const [highScores, setHighScores] = useState(INITIAL_HIGH_SCORES);
-
   // Game Stats
   const [stats, setStats] = useState({
     score: 0,
@@ -224,29 +219,6 @@ export default function App() {
     };
   }, [currentScreen, stats.isPaused]);
 
-  // Update high scores on game over
-  useEffect(() => {
-    if (currentScreen === 'GAME_OVER' && stats.score > 0) {
-      setHighScores((prev) => {
-        const exists = prev.some((e) => e.score === stats.score && e.playerName === 'YOU');
-        if (exists) return prev;
-        const newEntry = {
-          rank: 0,
-          playerName: 'YOU',
-          score: stats.score,
-          fruitsCut: stats.fruitsCut,
-          combo: stats.maxCombo,
-          date: 'JUST NOW',
-        };
-        const updated = [...prev, newEntry]
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 5)
-          .map((item, idx) => ({ ...item, rank: idx + 1 }));
-        return updated;
-      });
-    }
-  }, [currentScreen, stats.score, stats.fruitsCut, stats.maxCombo]);
-
   // Simulation test helpers
   const simulateSlice = () => {
     handleFruitSliced(10, 'APPLE', 1);
@@ -290,18 +262,6 @@ export default function App() {
 
       {/* Vibrant Palette Dot Grid Overlay */}
       <div className="absolute inset-0 opacity-20 pointer-events-none vibrant-dot-grid z-10" />
-
-      {/* Top Arcade Screen Switcher / Inspector Bar */}
-      <ScreenSwitcherBar
-        currentScreen={currentScreen}
-        isPaused={stats.isPaused}
-        onNavigate={(screen) => setCurrentScreen(screen)}
-        onTogglePause={() => setStats((prev) => ({ ...prev, isPaused: !prev.isPaused }))}
-        onSimulateSlice={simulateSlice}
-        onSimulateCombo={simulateCombo}
-        onSimulateBomb={simulateBomb}
-        onSimulateGameOver={simulateGameOver}
-      />
 
       {/* BACKGROUND 3D GAMEPLAY ARENA */}
       <div
@@ -355,7 +315,7 @@ export default function App() {
             transition={{ duration: 0.2 }}
             className="absolute inset-0 z-30"
           >
-            <MainMenu onNavigate={setCurrentScreen} bestScore={stats.bestScore} />
+            <MainMenu onNavigate={setCurrentScreen} onStartGame={handleStartGame} bestScore={stats.bestScore} />
           </motion.div>
         )}
 
@@ -400,7 +360,7 @@ export default function App() {
             transition={{ duration: 0.2 }}
             className="absolute inset-0 z-30 bg-[#090b10]/90 backdrop-blur-md"
           >
-            <HowToPlayScreen onNavigate={setCurrentScreen} />
+            <HowToPlayScreen onNavigate={setCurrentScreen} onStartGame={handleStartGame} />
           </motion.div>
         )}
 
@@ -418,19 +378,6 @@ export default function App() {
               onPlayAgain={handleStartGame}
               onNavigate={setCurrentScreen}
             />
-          </motion.div>
-        )}
-
-        {currentScreen === 'HIGH_SCORES' && (
-          <motion.div
-            key="high-scores-screen"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 z-30 bg-[#090b10]/90 backdrop-blur-md"
-          >
-            <HighScoresScreen highScores={highScores} onNavigate={setCurrentScreen} />
           </motion.div>
         )}
 
