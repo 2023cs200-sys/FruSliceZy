@@ -106,6 +106,6 @@ play without the backend.
 If `python main.py` fails, confirm that port `8765` is free and that the
 `websockets` package is installed in the active environment.
 
-For the supported browser path, run commands from `motion-fruit-cutter` and
+For the supported browser path, run commands from `game-ui` and
 use `npm run build` to distinguish application errors from development-server
 issues.

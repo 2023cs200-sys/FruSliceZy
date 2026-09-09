@@ -23,14 +23,14 @@ Displays connection status, calibration controls, motion status, and basic instr
 
 ### Browser Network Adapter
 Receives motion-controller messages and passes normalized events to the
-browser game through `motion-fruit-cutter/src/hooks/useWebSocket.js`.
+browser game through `game-ui/src/hooks/useWebSocket.js`.
 
 ### Motion Mapper
 The Python `MotionMapper` converts phone movement data into browser sword
 position, rotation, and slash direction.
 
 ### Game Manager
-Controls the main game state and game loop in `motion-fruit-cutter/src/App.jsx`.
+Controls the main game state and game loop in `game-ui/src/App.jsx`.
 
 ### Object Manager
 Maintains canvas fruit, sliced pieces, bombs, and other game objects in
@@ -90,8 +90,8 @@ PLAYING
 ## Implementation Mapping
 
 The browser implementation is centered in
-`motion-fruit-cutter/src/App.jsx` and
-`motion-fruit-cutter/src/components/ArcadeGameCanvas.jsx`. The Python
+`game-ui/src/App.jsx` and
+`game-ui/src/components/ArcadeGameCanvas.jsx`. The Python
 foundation maps game orchestration to `src/game/game.py`, collision to
 `src/collision/collision_detector.py`, sword movement to `src/player/`, and
 score/combo logic to `src/scoring/`.

@@ -46,7 +46,7 @@ must use the same Wi-Fi network.
 Open a second terminal and navigate to:
 
 ```bash
-cd python-game
+cd websockets
 ```
 
 Create a virtual environment:
@@ -91,7 +91,7 @@ Look for the IPv4 address.
 
 ## 6. Start the Game
 
-From `python-game`:
+From `websockets`:
 
 ```bash
 python main.py
@@ -122,7 +122,7 @@ Hold the phone in a comfortable starting position and press Calibrate.
 Start the browser client in a third terminal:
 
 ```bash
-cd motion-fruit-cutter
+cd game-ui
 npm install
 npm run dev
 ```

@@ -61,7 +61,7 @@ After all software dependencies are installed, the actual game communication doe
 ## Current Deployment Status
 
 The browser prototype can be built for static hosting from
-`motion-fruit-cutter` with `npm run build`; the generated `dist/` directory
+`game-ui` with `npm run build`; the generated `dist/` directory
 is standalone and does not require a Python server.
 
 The phone-to-browser deployment is not end to end. Before a demonstration can

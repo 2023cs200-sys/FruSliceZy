@@ -5,8 +5,8 @@
       "name": "Run FruSliceZy Game",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/python-game/main.py",
-      "cwd": "${workspaceFolder}/python-game",
+      "program": "${workspaceFolder}/websockets/main.py",
+      "cwd": "${workspaceFolder}/websockets",
       "console": "integratedTerminal"
     },
     }

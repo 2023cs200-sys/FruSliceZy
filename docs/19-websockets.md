@@ -109,8 +109,8 @@ The current server tracks one controller client and one browser client. A later 
 
 ### Current implementation locations
 
-- Python server: `python-game/src/networking/websocket_server.py`
-- Browser hook: `motion-fruit-cutter/src/hooks/useWebSocket.js`
+- Python server: `websockets/src/networking/websocket_server.py`
+- Browser hook: `game-ui/src/hooks/useWebSocket.js`
 - Mobile hook: `mobile-controller/src/hooks/useWebSocket.js`
 - Mobile connection manager: `mobile-controller/src/networking/connectionManager.js`
 - Shared protocol documentation: `docs/06-communication-protocol.md`
@@ -328,7 +328,7 @@ The server uses the `websockets` Python package and asynchronous functions so mu
 Start it with:
 
 ```powershell
-cd python-game
+cd websockets
 python -m venv venv
 venv\\Scripts\\activate
 python -m pip install -r requirements.txt

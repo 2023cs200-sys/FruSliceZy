@@ -1,5 +1,5 @@
-python-game/venv/
-python-game/.venv/
+websockets/venv/
+websockets/.venv/
 __pycache__/
 *.pyc
 .pytest_cache/

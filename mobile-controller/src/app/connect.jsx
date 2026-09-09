@@ -107,7 +107,7 @@ export default function ConnectScreen() {
 						Make sure the Python WebSocket backend is running on the laptop.
 					</Text>
 					<Text style={styles.errorDetail}>
-						Run: cd python-game && python main.py
+						Run: cd websockets && python main.py
 					</Text>
 				</View>
 			)}

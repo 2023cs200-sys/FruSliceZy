@@ -84,7 +84,7 @@ When the round ends, the game displays:
 
 ## Browser Controls
 
-The browser client runs in `motion-fruit-cutter`. In mouse mode, drag or swipe
+The browser client runs in `game-ui`. In mouse mode, drag or swipe
 across the play area to slice fruit. Avoid bombs: they reduce the score by 50
 and reset the current combo. The round lasts 60 seconds. Scores and settings
 are kept only for the current browser session.

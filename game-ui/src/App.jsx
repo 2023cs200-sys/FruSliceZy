@@ -251,7 +251,7 @@ export default function App() {
 
   return (
     <main
-      id="motion-fruit-cutter-app"
+      id="game-ui-app"
       className="relative w-screen h-screen overflow-hidden bg-[#0c0d12] text-white vibrant-bg select-none touch-none font-sans"
     >
       {/* Vibrant Palette Top Rainbow Accent Line */}

@@ -8,9 +8,9 @@ and the browser as the game host.
 
 | Directory | Purpose | Technology |
 | --- | --- | --- |
-| `motion-fruit-cutter` | Primary game client with menus, HUD, fruit spawning, slicing, combos, bombs, effects, sound, and controller/mouse play modes | React, Vite |
+| `game-ui` | Primary game client with menus, HUD, fruit spawning, slicing, combos, bombs, effects, sound, and controller/mouse play modes | React, Vite |
 | `mobile-controller` | Phone-only motion controller; sends sensor events to the browser game | React Native, Expo |
-| `python-game` | Python WebSocket backend that relays controller messages between the phone and browser | Python, websockets |
+| `websockets` | Python WebSocket backend that relays controller messages between the phone and browser | Python, websockets |
 | `docs` | Requirements, architecture, protocol, design, testing, and operations documentation | Markdown |
 
 ## Quick Start: Browser Prototype
@@ -18,7 +18,7 @@ and the browser as the game host.
 Prerequisite: Node.js and npm.
 
 ```powershell
-cd motion-fruit-cutter
+cd game-ui
 npm install
 npm run dev
 ```
@@ -54,10 +54,10 @@ required by the controller.
 ## Quick Start: Python WebSocket Backend
 
 Prerequisites: Python 3.10 or newer is recommended. The game dependencies are
-listed in `python-game/requirements.txt`.
+listed in `websockets/requirements.txt`.
 
 ```powershell
-cd python-game
+cd websockets
 python -m venv venv
 venv\Scripts\activate
 python -m pip install -r requirements.txt
@@ -74,7 +74,7 @@ local IP address from the mobile controller, for example
 
 ## Testing
 
-Run the WebSocket integration check from `python-game` while no other server
+Run the WebSocket integration check from `websockets` while no other server
 is using port `8765`:
 
 ```powershell

@@ -67,7 +67,7 @@ gameplay once the applications are available locally.
 
 ## Current Implementation Status
 
-The browser prototype in `motion-fruit-cutter` is the primary playable
+The browser prototype in `game-ui` is the primary playable
 application. It is a 2D React/Vite canvas game controlled by mouse or touch.
 
 The Expo app in `mobile-controller` provides connection, controller, sensor,
