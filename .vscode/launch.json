@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run FruSliceZy Game",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/websockets/main.py",
+      "cwd": "${workspaceFolder}/websockets",
+      "console": "integratedTerminal"
+    },
+    }
+  ]
+}

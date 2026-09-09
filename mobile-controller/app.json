@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "FruSliceZy Controller",
+    "slug": "fruslicezy-controller",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "fruslicezycontroller",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0d0a1f",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.fruslicezy.controller"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Allow $(PRODUCT_NAME) to access device motion to control the game sword."
+        }
+      ],
+      "expo-status-bar",
+      "expo-font"
+    ]
+  }
+}
