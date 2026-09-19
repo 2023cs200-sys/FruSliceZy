@@ -71,15 +71,7 @@ export const MainMenu = ({ onNavigate, onStartGame, bestScore }) => {
       </div>
 
       {/* TOP HEADER */}
-      <div className="w-full flex items-center justify-between max-w-5xl z-10">
-        <div className="flex items-center gap-2 bg-[#12141c]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg">
-          <Trophy className="w-5 h-5 text-[#ffcc00]" />
-          <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">BEST SCORE:</span>
-          <span className="font-mono text-base sm:text-lg font-bold text-[#ffcc00] tracking-wider">
-            {bestScore.toLocaleString()}
-          </span>
-        </div>
-
+      <div className="w-full flex items-center justify-end max-w-5xl z-10">
         <button
           onClick={() => handleNav('CONNECT')}
           className="group flex items-center gap-2.5 bg-[#12141c]/80 hover:bg-[#1a1d29] backdrop-blur-md px-4 py-2 rounded-full border border-white/10 hover:border-green-500/50 text-green-400 transition-all cursor-pointer shadow-lg active:scale-95"
